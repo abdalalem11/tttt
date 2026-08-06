@@ -2,7 +2,6 @@ import os
 import logging
 import random
 import requests
-import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
@@ -254,7 +253,7 @@ async def dev_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ========== التشغيل الرئيسي ==========
 
-async def main():
+def main():
     print("🚀 تشغيل بوت التواصل الذكي...")
     
     app = Application.builder().token(BOT_TOKEN).build()
@@ -271,16 +270,7 @@ async def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     print("✅ البوت يعمل الآن...")
-    
-    # تشغيل البوت
-    await app.run_polling(allowed_updates=Update.ALL_TYPES)
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    # إنشاء حلقة أحداث جديدة وتشغيلها
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    finally:
-        asyncio.run(main())
+    main()
