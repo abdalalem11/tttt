@@ -1,6 +1,6 @@
 services:
   - type: worker
-    name: telegram-contact-bot
+    name: smart-contact-bot
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
