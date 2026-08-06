@@ -1,7 +1,9 @@
 services:
-  - type: worker
-    name: smart-contact-bot
-    env: python
-    plan: free
+  - type: web
+    name: tttt
+    runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
