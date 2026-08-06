@@ -71,13 +71,8 @@ TELEGRAM_FACTS = [
 # ========== دوال الذكاء الاصطناعي ==========
 
 def get_ai_response(user_message):
-    """
-    يحاكي الذكاء الاصطناعي بردود ذكية
-    يمكنك استبداله بـ Gemini API أو OpenAI
-    """
     user_message = user_message.lower()
     
-    # ردود مبرمجة ذكية
     if "مرحبا" in user_message or "السلام" in user_message:
         return "👋 وعليكم السلام! كيف يمكنني مساعدتك اليوم؟"
     
@@ -105,45 +100,22 @@ def get_ai_response(user_message):
     if "نكتة" in user_message:
         return random.choice(JOKES)
     
-    # رد عام ذكي
-    return f"🤔 فكرت في رسالتك: \"{user_message}\"\n\n" \
-           f"ما رأيك تجرب الأزرار الجميلة بالأسفل؟ 😊\n" \
-           f"أو اسألني عن شيء آخر!"
+    return f"🤔 فكرت في رسالتك: \"{user_message}\"\n\nما رأيك تجرب الأزرار الجميلة بالأسفل؟ 😊"
 
 # ========== دوال البوت ==========
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # إنشاء الأزرار المرتبة
     keyboard = [
-        [
-            InlineKeyboardButton("🤖 ذكاء اصطناعي", callback_data="ai"),
-            InlineKeyboardButton("😂 نكتة", callback_data="joke"),
-        ],
-        [
-            InlineKeyboardButton("🕌 ديني", callback_data="religious"),
-            InlineKeyboardButton("💡 نصيحة", callback_data="tip"),
-        ],
-        [
-            InlineKeyboardButton("❤️ حب", callback_data="love"),
-            InlineKeyboardButton("📱 تليجرام", callback_data="telegram"),
-        ],
-        [
-            InlineKeyboardButton("📝 تواصل مع المطور", url="https://t.me/u_t_r"),
-        ],
+        [InlineKeyboardButton("🤖 ذكاء اصطناعي", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
+        [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
+        [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
+        [InlineKeyboardButton("📝 تواصل مع المطور", url="https://t.me/u_t_r")],
     ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        "🌟 **مرحباً بك في بوت التواصل الذكي!** 🌟\n\n"
-        "أنا هنا لخدمتك، اختر من الأزرار الفخمة أدناه:\n"
-        "🔹 للرد التلقائي الذكي\n"
-        "🔹 للنكت والفكاهة\n"
-        "🔹 للنصائح والإرشادات\n"
-        "🔹 للاقتباسات الدينية\n"
-        "🔹 لرسائل الحب\n"
-        "🔹 لمعلومات عن تليجرام\n\n"
-        "✨ أو أرسل أي رسالة وسأرد عليك بذكاء!",
+        "🌟 **مرحباً بك في بوت التواصل الذكي!** 🌟\n\nأنا هنا لخدمتك، اختر من الأزرار الفخمة أدناه:\n🔹 للرد التلقائي الذكي\n🔹 للنكت والفكاهة\n🔹 للنصائح والإرشادات\n🔹 للاقتباسات الدينية\n🔹 لرسائل الحب\n🔹 لمعلومات عن تليجرام\n\n✨ أو أرسل أي رسالة وسأرد عليك بذكاء!",
         reply_markup=reply_markup,
         parse_mode="Markdown"
     )
@@ -156,117 +128,45 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = query.from_user.first_name
     
     if data == "ai":
-        await query.edit_message_text(
-            "🤖 **مرحباً! أنا الذكاء الاصطناعي هنا.**\n\n"
-            "أرسل لي أي سؤال أو رسالة وسأرد عليك بأفضل شكل. 🌟\n\n"
-            "💡 جرب تسألني: من أنت؟ أو كيف الحال؟",
-            parse_mode="Markdown"
-        )
-    
+        await query.edit_message_text("🤖 **مرحباً! أنا الذكاء الاصطناعي هنا.**\n\nأرسل لي أي سؤال أو رسالة وسأرد عليك بأفضل شكل. 🌟", parse_mode="Markdown")
     elif data == "joke":
-        joke = random.choice(JOKES)
-        await query.edit_message_text(
-            f"😂 **نكتة اليوم** 😂\n\n{joke}\n\n"
-            f"اضغط الزر مرة ثانية لنكتة جديدة!",
-            parse_mode="Markdown"
-        )
-    
+        await query.edit_message_text(f"😂 **نكتة اليوم** 😂\n\n{random.choice(JOKES)}", parse_mode="Markdown")
     elif data == "religious":
-        quote = random.choice(RELIGIOUS)
-        await query.edit_message_text(
-            f"🕌 **اقتباس ديني** 🕌\n\n{quote}\n\n"
-            f"نسأل الله التوفيق والهداية للجميع. آمين.",
-            parse_mode="Markdown"
-        )
-    
+        await query.edit_message_text(f"🕌 **اقتباس ديني** 🕌\n\n{random.choice(RELIGIOUS)}", parse_mode="Markdown")
     elif data == "tip":
-        tip = random.choice(TIPS)
-        await query.edit_message_text(
-            f"💡 **نصيحة اليوم** 💡\n\n{tip}\n\n"
-            f"تمنى تفيدك وتنفعك!",
-            parse_mode="Markdown"
-        )
-    
+        await query.edit_message_text(f"💡 **نصيحة اليوم** 💡\n\n{random.choice(TIPS)}", parse_mode="Markdown")
     elif data == "love":
-        love_msg = random.choice(LOVE)
-        await query.edit_message_text(
-            f"❤️ **رسالة حب** ❤️\n\n{love_msg}\n\n"
-            f"لك {user_name} 💫",
-            parse_mode="Markdown"
-        )
-    
+        await query.edit_message_text(f"❤️ **رسالة حب** ❤️\n\n{random.choice(LOVE)}\n\nلك {user_name} 💫", parse_mode="Markdown")
     elif data == "telegram":
-        fact = random.choice(TELEGRAM_FACTS)
-        await query.edit_message_text(
-            f"📱 **معلومة عن تليجرام** 📱\n\n{fact}\n\n"
-            f"تليجرام منصة رائعة للتواصل! 🚀",
-            parse_mode="Markdown"
-        )
+        await query.edit_message_text(f"📱 **معلومة عن تليجرام** 📱\n\n{random.choice(TELEGRAM_FACTS)}", parse_mode="Markdown")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_msg = update.message.text
+    ai_reply = get_ai_response(update.message.text)
     
-    # استخدام الذكاء الاصطناعي المبرمج
-    ai_reply = get_ai_response(user_msg)
-    
-    # الأزرار بعد الرد
     keyboard = [
-        [
-            InlineKeyboardButton("🤖 ذكاء", callback_data="ai"),
-            InlineKeyboardButton("😂 نكتة", callback_data="joke"),
-        ],
-        [
-            InlineKeyboardButton("💡 نصيحة", callback_data="tip"),
-            InlineKeyboardButton("❤️ حب", callback_data="love"),
-        ],
+        [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
+        [InlineKeyboardButton("💡 نصيحة", callback_data="tip"), InlineKeyboardButton("❤️ حب", callback_data="love")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
-        f"{ai_reply}\n\n"
-        f"🔽 **اختر زراً للمزيد:**",
-        reply_markup=reply_markup,
-        parse_mode="Markdown"
-    )
+    await update.message.reply_text(f"{ai_reply}\n\n🔽 **اختر زراً للمزيد:**", reply_markup=reply_markup, parse_mode="Markdown")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "📖 **الأوامر المتاحة:**\n\n"
-        "/start - عرض الأزرار والبدء\n"
-        "/help - عرض هذه المساعدة\n"
-        "/dev - معلومات المطور\n\n"
-        "💬 أو استخدم الأزرار الجميلة للتفاعل!",
-        parse_mode="Markdown"
-    )
+    await update.message.reply_text("📖 **الأوامر المتاحة:**\n\n/start - عرض الأزرار والبدء\n/help - عرض هذه المساعدة\n/dev - معلومات المطور", parse_mode="Markdown")
 
 async def dev_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "👨‍💻 **المطور**\n\n"
-        "هذا البوت من تصميم وتطوير:\n"
-        "✨ @u_t_r ✨\n\n"
-        "📌 للاستفسارات والتواصل:\n"
-        "[اضغط هنا للتواصل](https://t.me/u_t_r)\n\n"
-        "شكراً لاستخدامك البوت! ❤️",
-        parse_mode="Markdown",
-        disable_web_page_preview=True
-    )
+    await update.message.reply_text("👨‍💻 **المطور**\n\nهذا البوت من تصميم وتطوير:\n✨ @u_t_r ✨\n\n📌 للاستفسارات والتواصل:\n[اضغط هنا للتواصل](https://t.me/u_t_r)", parse_mode="Markdown", disable_web_page_preview=True)
 
 # ========== التشغيل الرئيسي ==========
 
 def main():
     print("🚀 تشغيل بوت التواصل الذكي...")
-    
     app = Application.builder().token(BOT_TOKEN).build()
     
-    # الأوامر
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("dev", dev_command))
-    
-    # معالج الأزرار
     app.add_handler(CallbackQueryHandler(button_handler))
-    
-    # معالج الرسائل
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     print("✅ البوت يعمل الآن...")
