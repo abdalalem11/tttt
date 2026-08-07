@@ -1,6 +1,5 @@
 import os
 import logging
-import random
 import json
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -56,88 +55,6 @@ def save_replies(replies):
     with open(REPLIES_FILE, 'w', encoding='utf-8') as f:
         json.dump(replies, f, ensure_ascii=False, indent=4)
 
-# ========== قوائم المحتوى ==========
-JOKES = [
-    "😂 مرة واحد دخل مطعم، قال للجرسون: أعطيني أكل بدون ملح. قال الجرسون: مستحيل! قال: ليش؟ قال: لأن الأكل كله بدون ملح ما يمديني!",
-    "😄 واحد سأل صاحبه: ليش السمك ما يطير؟ قال: لأن الجناحين حقته صغار!",
-    "🤣 مرة واحد نام في المقبرة، صحى لقى نفسه ميت!",
-    "😅 واحد راح للدكتور قال: دكتور أنا عندي مشكلة! قال: وش هي؟ قال: كل ما أنام أحلم أني أكتب اختبار!",
-    "😂 مرة واحد سأل أخوه: ليش الكلب يلهث؟ قال: لأنه ما يقدر يفتح الشباك!",
-]
-
-TIPS = [
-    "💡 نصيحة: ابتسم فأنت جميل بأخلاقك قبل ملامحك.",
-    "💡 نصيحة: النوم المبكر يحسن صحتك ومزاجك.",
-    "💡 نصيحة: اقضِ 10 دقائق يومياً في القراءة، ستغير حياتك.",
-    "💡 نصيحة: تواصل مع أهلك، فالوقت لا يعود.",
-    "💡 نصيحة: تعلم شيئاً جديداً كل يوم.",
-    "💡 نصيحة: الصدق يريح القلب ويجلب الاحترام.",
-    "💡 نصيحة: المشي لمدة 30 دقيقة يومياً يقوي صحتك.",
-]
-
-RELIGIOUS = [
-    "🕌 {ربنا لا تزغ قلوبنا بعد إذ هديتنا وهب لنا من لدنك رحمة إنك أنت الوهاب} [آل عمران: 8]",
-    "🕌 {وأن ليس للإنسان إلا ما سعى} [النجم: 39]",
-    "🕌 {إن مع العسر يسراً} [الشرح: 6]",
-    "🕌 {فإن مع العسر يسراً} [الشرح: 5]",
-    "🕌 {إن الله مع الصابرين} [البقرة: 153]",
-    "🕌 {وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ} [آل عمران: 139]",
-    "🕌 {وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا} [الطلاق: 2]",
-]
-
-LOVE = [
-    "❤️ أنت أجمل ما في حياتي، كل لحظة معك هي حلم تحقق.",
-    "❤️ أحبك ليس لأنك جميل، بل لأن روحك تشبه القمر في ظلمة الليل.",
-    "❤️ لو كان الحب كلمات، لكنت كتبت عنك ألف كتاب.",
-    "❤️ ابتسامتك هي سبب سعادتي، وهي نور عيني.",
-    "❤️ عندما أراك، أنسى كل همومي وتصبح الدنيا أجمل.",
-    "❤️ كل يوم يمر وأنا أشكر الله على وجودك في حياتي.",
-    "❤️ أنت الحب الذي لم أكن أعرف أنني بحاجة إليه.",
-]
-
-TELEGRAM_FACTS = [
-    "📱 تأسس تليجرام في عام 2013 على يد الأخوين دواروف.",
-    "📱 تليجرام يدعم البوتات التي تسهل الحياة اليومية.",
-    "📱 يمكنك إنشاء قنوات غير محدودة الأعضاء على تليجرام.",
-    "📱 تليجرام يوفر تشفيراً كاملاً للمحادثات السرية.",
-    "📱 يمكنك إرسال ملفات بحجم يصل إلى 2 جيجابايت على تليجرام.",
-    "📱 تليجرام يعمل على جميع الأجهزة والأنظمة.",
-    "📱 تليجرام لديه أكثر من 700 مليون مستخدم نشط حول العالم.",
-]
-
-# ========== دوال الذكاء الاصطناعي ==========
-def get_ai_response(user_message):
-    user_message = user_message.lower()
-    
-    if "مرحبا" in user_message or "السلام" in user_message:
-        return "👋 وعليكم السلام! كيف يمكنني مساعدتك اليوم؟"
-    
-    if "كيف حالك" in user_message:
-        return "🙂 أنا بخير والحمد لله! شكراً لسؤالك، وأنت كيف حالك؟"
-    
-    if "شكرا" in user_message or "مشكور" in user_message:
-        return "🤍 الشكر لله، ولو! أنا هنا لخدمتك دائماً."
-    
-    if "ما اسمك" in user_message:
-        return "🤖 أنا بوت التواصل الذكي، صممته لأقدم لك المساعدة والمتعة!"
-    
-    if "من انت" in user_message:
-        return "🌟 أنا بوت ذكي، تم تطويره لتقديم النصائح، النكت، والردود المفيدة."
-    
-    if "باي" in user_message or "مع السلامة" in user_message:
-        return "👋 مع السلامة! أتمنى لك يوماً سعيداً، عد متى شئت."
-    
-    if "الحب" in user_message:
-        return random.choice(LOVE)
-    
-    if "نصيحة" in user_message:
-        return random.choice(TIPS)
-    
-    if "نكتة" in user_message:
-        return random.choice(JOKES)
-    
-    return f"🤔 فكرت في رسالتك: \"{user_message}\"\n\nما رأيك تجرب الأزرار في /start 😊"
-
 # ========== دوال البوت ==========
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -181,29 +98,42 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             except:
                 pass
         
+        # تصميم فخم للرسالة
         keyboard = [
-            [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
-            [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
-            [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
-            [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
+            [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message")],
+            [InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
+            [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video")],
+            [InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
         ]
         
         # إضافة زر لوحة التحكم للمطور فقط
         if user_id == DEVELOPER_ID:
-            keyboard.append([InlineKeyboardButton("⚙️ التحكم", callback_data="admin_panel")])
+            keyboard.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
         
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            f"👑 **بوت التواصل الذكي** 👑\n\n"
-            f"✧ مطوري: @SSSTlF ✧\n\n"
-            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-            f"🤖 ذكاء  •  😂 نكتة\n"
-            f"🕌 ديني  •  💡 نصيحة\n"
-            f"❤️ حب  •  📱 تليجرام\n"
-            f"📩 تواصل مع المطور\n"
-            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
-            f"✨ أرسل وسأرد بذكاء",
+            f"╔══════════════════════════╗\n"
+            f"║   🤖 بوت التواصل الذكي   ║\n"
+            f"╚══════════════════════════╝\n\n"
+            f"✨ **مرحباً بك {user_name}** ✨\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"📌 **هذا البوت مخصص للتواصل**\n"
+            f"📌 **مع المطور @SSSTlF**\n\n"
+            f"💫 **يمكنك إرسال:**\n"
+            f"• رسالة نصية 📝\n"
+            f"• صورة 🖼️\n"
+            f"• فيديو 🎥\n"
+            f"• ملف صوتي 🎵\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"⚡ **اختر نوع الملف المراد إرساله:**\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+            f"🔹 **للاستفسارات والشكاوى**\n"
+            f"🔹 **للمقترحات والتطوير**\n"
+            f"🔹 **للتواصل المباشر**\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"👨‍💻 **المطور:** @SSSTlF\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
             reply_markup=reply_markup,
             parse_mode="Markdown"
         )
@@ -234,12 +164,15 @@ async def panel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
     await update.message.reply_text(
-        f"⚙️ **لوحة التحكم**\n\n"
-        f"👨‍💻 المطور: @SSSTlF\n"
-        f"📊 المستخدمين: {data['total_users']}\n"
-        f"🚫 المحظورين: {len(data['banned_users'])}\n"
-        f"📌 الحالة: {status}\n\n"
-        f"اختر الإجراء:",
+        f"╔══════════════════════════╗\n"
+        f"║    ⚙️ لوحة التحكم        ║\n"
+        f"╚══════════════════════════╝\n\n"
+        f"👨‍💻 **المطور:** @SSSTlF\n"
+        f"📊 **المستخدمين:** {data['total_users']}\n"
+        f"🚫 **المحظورين:** {len(data['banned_users'])}\n"
+        f"📌 **الحالة:** {status}\n\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+        f"اختر الإجراء المناسب:",
         reply_markup=reply_markup,
         parse_mode="Markdown"
     )
@@ -284,11 +217,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 await context.bot.send_message(
                     chat_id=target_user_id,
-                    text=f"📩 **رد من المطور @SSSTlF**\n\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n"
+                    text=f"╔══════════════════════════╗\n"
+                         f"║   📩 رد من المطور        ║\n"
+                         f"╚══════════════════════════╝\n\n"
                          f"{reply_text}\n\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n"
-                         f"✧ للرد على المطور: أرسل رسالتك هنا ✧",
+                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                         f"✧ للرد على المطور: /start ✧",
                     parse_mode="Markdown"
                 )
                 
@@ -365,70 +299,18 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
         
-        # ========== الأزرار العادية ==========
-        if data_callback == "ai":
-            await query.edit_message_text(
-                "🤖 **مرحباً! أنا الذكاء الاصطناعي هنا.**\n\n"
-                "أرسل لي أي سؤال أو رسالة وسأرد عليك بأفضل شكل. 🌟",
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "joke":
-            await query.edit_message_text(
-                f"😂 **نكتة اليوم** 😂\n\n{random.choice(JOKES)}",
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "religious":
-            await query.edit_message_text(
-                f"🕌 **اقتباس ديني** 🕌\n\n{random.choice(RELIGIOUS)}",
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "tip":
-            await query.edit_message_text(
-                f"💡 **نصيحة اليوم** 💡\n\n{random.choice(TIPS)}",
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "love":
-            await query.edit_message_text(
-                f"❤️ **رسالة حب** ❤️\n\n{random.choice(LOVE)}\n\nلك {user_name} 💫",
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "telegram":
-            await query.edit_message_text(
-                f"📱 **معلومة عن تليجرام** 📱\n\n{random.choice(TELEGRAM_FACTS)}",
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "contact_dev":
-            keyboard = [
-                [InlineKeyboardButton("📝 رسالة", callback_data="send_message")],
-                [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
-                [InlineKeyboardButton("🎥 فيديو", callback_data="send_video")],
-                [InlineKeyboardButton("🎵 صوت", callback_data="send_audio")],
-                [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            
-            await query.edit_message_text(
-                f"📩 **التواصل مع المطور**\n\n"
-                f"👨‍💻 المطور: @SSSTlF\n\n"
-                f"⚠️ **تنبيه:**\n"
-                f"المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
-                f"اختر نوع الملف:",
-                reply_markup=reply_markup,
-                parse_mode="Markdown"
-            )
-        
-        elif data_callback == "send_message":
+        # ========== أزرار الإرسال ==========
+        if data_callback == "send_message":
             context.user_data['waiting_for'] = 'message_to_dev'
             await query.edit_message_text(
-                f"📝 **أرسل رسالتك الآن**\n\n"
-                f"للمطور @SSSTlF\n\n"
-                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
+                f"╔══════════════════════════╗\n"
+                f"║    📝 إرسال رسالة        ║\n"
+                f"╚══════════════════════════╝\n\n"
+                f"✍️ **أرسل رسالتك الآن**\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"📌 سيتم إرسالها للمطور @SSSTlF\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
                 f"⏳ انتظر... سأرسلها فوراً.",
                 parse_mode="Markdown"
             )
@@ -436,54 +318,81 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif data_callback == "send_photo":
             context.user_data['waiting_for'] = 'photo_to_dev'
             await query.edit_message_text(
+                f"╔══════════════════════════╗\n"
+                f"║    🖼️ إرسال صورة        ║\n"
+                f"╚══════════════════════════╝\n\n"
                 f"🖼️ **أرسل الصورة الآن**\n\n"
-                f"للمطور @SSSTlF\n\n"
-                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-                f"💬 يمكنك إضافة تعليق.",
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"📌 سيتم إرسالها للمطور @SSSTlF\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+                f"💬 يمكنك إضافة تعليق مع الصورة.",
                 parse_mode="Markdown"
             )
         
         elif data_callback == "send_video":
             context.user_data['waiting_for'] = 'video_to_dev'
             await query.edit_message_text(
+                f"╔══════════════════════════╗\n"
+                f"║    🎥 إرسال فيديو        ║\n"
+                f"╚══════════════════════════╝\n\n"
                 f"🎥 **أرسل الفيديو الآن**\n\n"
-                f"للمطور @SSSTlF\n\n"
-                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-                f"💬 يمكنك إضافة تعليق.",
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"📌 سيتم إرساله للمطور @SSSTlF\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+                f"💬 يمكنك إضافة تعليق مع الفيديو.",
                 parse_mode="Markdown"
             )
         
         elif data_callback == "send_audio":
             context.user_data['waiting_for'] = 'audio_to_dev'
             await query.edit_message_text(
-                f"🎵 **أرسل الصوت الآن**\n\n"
-                f"للمطور @SSSTlF\n\n"
-                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-                f"💬 يمكنك إضافة تعليق.",
+                f"╔══════════════════════════╗\n"
+                f"║    🎵 إرسال صوت         ║\n"
+                f"╚══════════════════════════╝\n\n"
+                f"🎵 **أرسل الملف الصوتي الآن**\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"📌 سيتم إرساله للمطور @SSSTlF\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+                f"💬 يمكنك إضافة تعليق مع الملف الصوتي.",
                 parse_mode="Markdown"
             )
         
         elif data_callback == "back_to_start":
             keyboard = [
-                [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
-                [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
-                [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
-                [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
+                [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message")],
+                [InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
+                [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video")],
+                [InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
             ]
             if user_id == DEVELOPER_ID:
-                keyboard.append([InlineKeyboardButton("⚙️ التحكم", callback_data="admin_panel")])
+                keyboard.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await query.edit_message_text(
-                f"👑 **بوت التواصل الذكي** 👑\n\n"
-                f"✧ مطوري: @SSSTlF ✧\n\n"
-                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                f"🤖 ذكاء  •  😂 نكتة\n"
-                f"🕌 ديني  •  💡 نصيحة\n"
-                f"❤️ حب  •  📱 تليجرام\n"
-                f"📩 تواصل مع المطور\n"
-                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
-                f"✨ أرسل وسأرد بذكاء",
+                f"╔══════════════════════════╗\n"
+                f"║   🤖 بوت التواصل الذكي   ║\n"
+                f"╚══════════════════════════╝\n\n"
+                f"✨ **مرحباً بك {user_name}** ✨\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"📌 **هذا البوت مخصص للتواصل**\n"
+                f"📌 **مع المطور @SSSTlF**\n\n"
+                f"💫 **يمكنك إرسال:**\n"
+                f"• رسالة نصية 📝\n"
+                f"• صورة 🖼️\n"
+                f"• فيديو 🎥\n"
+                f"• ملف صوتي 🎵\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"⚡ **اختر نوع الملف المراد إرساله:**\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+                f"🔹 **للاستفسارات والشكاوى**\n"
+                f"🔹 **للمقترحات والتطوير**\n"
+                f"🔹 **للتواصل المباشر**\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"👨‍💻 **المطور:** @SSSTlF\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
@@ -503,12 +412,15 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
             await query.edit_message_text(
-                f"⚙️ **لوحة التحكم**\n\n"
-                f"👨‍💻 المطور: @SSSTlF\n"
-                f"📊 المستخدمين: {data['total_users']}\n"
-                f"🚫 المحظورين: {len(data['banned_users'])}\n"
-                f"📌 الحالة: {status}\n\n"
-                f"اختر الإجراء:",
+                f"╔══════════════════════════╗\n"
+                f"║    ⚙️ لوحة التحكم        ║\n"
+                f"╚══════════════════════════╝\n\n"
+                f"👨‍💻 **المطور:** @SSSTlF\n"
+                f"📊 **المستخدمين:** {data['total_users']}\n"
+                f"🚫 **المحظورين:** {len(data['banned_users'])}\n"
+                f"📌 **الحالة:** {status}\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"اختر الإجراء المناسب:",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
@@ -592,17 +504,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     reply_markup=reply_markup,
                     parse_mode="Markdown"
                 )
-        
-        elif data_callback == "admin_reply" and user_id == DEVELOPER_ID:
-            context.user_data['waiting_for'] = 'reply_to_user'
-            await query.edit_message_text(
-                "📩 **الرد على مستخدم**\n\n"
-                "أرسل **آيدي المستخدم** ثم **الرسالة**.\n"
-                "الصيغة: `ايدي|الرسالة`\n\n"
-                "مثال: `123456789|مرحباً كيف حالك؟`\n\n"
-                "لإلغاء: /cancel",
-                parse_mode="Markdown"
-            )
     except Exception as e:
         logging.error(f"Error in button_handler: {e}")
 
@@ -659,11 +560,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 await context.bot.send_message(
                     chat_id=target_user_id,
-                    text=f"📩 **رد من المطور @SSSTlF**\n\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n"
+                    text=f"╔══════════════════════════╗\n"
+                         f"║   📩 رد من المطور        ║\n"
+                         f"╚══════════════════════════╝\n\n"
                          f"{reply_text}\n\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n"
-                         f"✧ للرد على المطور: أرسل رسالتك هنا ✧",
+                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                         f"✧ للرد على المطور: /start ✧",
                     parse_mode="Markdown"
                 )
                 
@@ -735,61 +637,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         parse_mode="Markdown"
                     )
                 return
-            
-            elif context.user_data.get('waiting_for') == 'reply_to_user':
-                try:
-                    parts = user_message.split('|', 1)
-                    if len(parts) != 2:
-                        await update.message.reply_text(
-                            "❌ **خطأ في الصيغة!**\n\n"
-                            "استخدم: `ايدي|الرسالة`\n"
-                            "مثال: `123456789|مرحباً كيف حالك؟`",
-                            parse_mode="Markdown"
-                        )
-                        return
-                    
-                    target_id = int(parts[0].strip())
-                    reply_text = parts[1].strip()
-                    
-                    if not reply_text:
-                        await update.message.reply_text(
-                            "❌ **الرسالة فارغة!**",
-                            parse_mode="Markdown"
-                        )
-                        return
-                    
-                    await context.bot.send_message(
-                        chat_id=target_id,
-                        text=f"📩 **رسالة من المطور**\n\n"
-                             f"━━━━━━━━━━━━━━━━━━━\n"
-                             f"{reply_text}\n\n"
-                             f"━━━━━━━━━━━━━━━━━━━\n"
-                             f"✧ للرد على المطور استخدم زر 📩 المطور ✧",
-                        parse_mode="Markdown"
-                    )
-                    
-                    await update.message.reply_text(
-                        f"✅ **تم إرسال الرد بنجاح!**\n\n"
-                        f"👤 المستخدم: `{target_id}`\n"
-                        f"📝 الرسالة:\n{reply_text}",
-                        parse_mode="Markdown"
-                    )
-                    
-                    context.user_data['waiting_for'] = None
-                    
-                except ValueError:
-                    await update.message.reply_text(
-                        "❌ **خطأ:** يرجى إرسال آيدي صحيح (أرقام فقط).",
-                        parse_mode="Markdown"
-                    )
-                except Exception as e:
-                    await update.message.reply_text(
-                        f"❌ **حدث خطأ أثناء الإرسال.**\n"
-                        f"تأكد من أن المستخدم بدأ البوت أولاً.",
-                        parse_mode="Markdown"
-                    )
-                    logging.error(f"Error sending reply: {e}")
-                return
         
         # ========== إرسال رسالة للمطور ==========
         if context.user_data.get('waiting_for') == 'message_to_dev':
@@ -829,15 +676,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # إرسال للمطور مع الأزرار
                 await context.bot.send_message(
                     chat_id=DEVELOPER_ID,
-                    text=f"📩 **رسالة جديدة من مستخدم**\n\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n"
+                    text=f"╔══════════════════════════╗\n"
+                         f"║   📩 رسالة جديدة         ║\n"
+                         f"╚══════════════════════════╝\n\n"
                          f"👤 **الاسم:** {user_name}\n"
                          f"🆔 **اليوزر:** @{username if username else 'لا يوجد'}\n"
-                         f"🔢 **الايدي:** `{user_id}`\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n\n"
+                         f"🔢 **الايدي:** `{user_id}`\n\n"
+                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                          f"📝 **الرسالة:**\n"
                          f"{user_message}\n\n"
-                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                          f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                          f"💡 اختر رداً سريعاً أو اكتب رداً مخصصاً:",
                     reply_markup=reply_markup,
@@ -846,15 +694,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 # تأكيد للمستخدم
                 await update.message.reply_text(
-                    f"✅ **تم إرسال رسالتك بنجاح!**\n\n"
-                    f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"👤 {user_name}\n"
-                    f"🆔 @{username if username else 'لا يوجد'}\n"
-                    f"🔢 `{user_id}`\n"
-                    f"━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"╔══════════════════════════╗\n"
+                    f"║    ✅ تم الإرسال بنجاح    ║\n"
+                    f"╚══════════════════════════╝\n\n"
+                    f"📨 **تم إرسال رسالتك بنجاح!**\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"👤 **المرسل:** {user_name}\n"
+                    f"🆔 **اليوزر:** @{username if username else 'لا يوجد'}\n"
+                    f"🔢 **الايدي:** `{user_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
                     f"📝 **رسالتك:**\n{user_message}\n\n"
-                    f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"📨 سيتم الرد عليك قريباً من المطور @SSSTlF",
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📨 سيتم الرد عليك قريباً من المطور @SSSTlF\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
                     parse_mode="Markdown"
                 )
                 
@@ -869,39 +721,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             return
         
-        # ========== التحقق من رسائل المطور ==========
-        # إذا كان المطور يرد على مستخدم (صيغة: ايدي|رسالة)
-        if user_id == DEVELOPER_ID and '|' in user_message:
-            try:
-                parts = user_message.split('|', 1)
-                if len(parts) == 2:
-                    target_id = int(parts[0].strip())
-                    reply_text = parts[1].strip()
-                    
-                    if reply_text:
-                        await context.bot.send_message(
-                            chat_id=target_id,
-                            text=f"📩 **رسالة من المطور**\n\n"
-                                 f"━━━━━━━━━━━━━━━━━━━\n"
-                                 f"{reply_text}\n\n"
-                                 f"━━━━━━━━━━━━━━━━━━━\n"
-                                 f"✧ للرد على المطور استخدم زر 📩 المطور ✧",
-                            parse_mode="Markdown"
-                        )
-                        
-                        await update.message.reply_text(
-                            f"✅ **تم إرسال الرد بنجاح!**\n\n"
-                            f"👤 المستخدم: `{target_id}`\n"
-                            f"📝 الرسالة:\n{reply_text}",
-                            parse_mode="Markdown"
-                        )
-                        return
-            except:
-                pass
-        
-        # ========== ردود الذكاء الاصطناعي ==========
-        ai_reply = get_ai_response(user_message)
-        await update.message.reply_text(ai_reply, parse_mode="Markdown")
+        # ========== ردود البوت العادية ==========
+        await update.message.reply_text(
+            f"╔══════════════════════════╗\n"
+            f"║   🤖 بوت التواصل الذكي   ║\n"
+            f"╚══════════════════════════╝\n\n"
+            f"📌 **هذا البوت مخصص للتواصل مع المطور**\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"💡 **لإرسال رسالة استخدم الأمر:**\n"
+            f"📩 /start\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"👨‍💻 **المطور:** @SSSTlF\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
+            parse_mode="Markdown"
+        )
     except Exception as e:
         logging.error(f"Error in handle_message: {e}")
 
@@ -928,14 +761,15 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_photo(
                     chat_id=DEVELOPER_ID,
                     photo=open(file_path, 'rb'),
-                    caption=f"🖼️ **صورة جديدة من مستخدم**\n\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n"
+                    caption=f"╔══════════════════════════╗\n"
+                            f"║   🖼️ صورة جديدة          ║\n"
+                            f"╚══════════════════════════╝\n\n"
                             f"👤 {user_name}\n"
                             f"🆔 @{username if username else 'لا يوجد'}\n"
-                            f"🔢 `{user_id}`\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n\n"
+                            f"🔢 `{user_id}`\n\n"
+                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                             f"📝 {caption}\n\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                             f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                             f"💡 للرد: استخدم /panel ثم اختر الرد المناسب"
                 )
@@ -961,7 +795,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         
         await update.message.reply_text(
-            "📸 صورة جميلة! استخدم زر '📩 المطور' لإرسالها.",
+            "📸 صورة جميلة! استخدم /start لإرسالها للمطور.",
             parse_mode="Markdown"
         )
     except Exception as e:
@@ -990,14 +824,15 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_video(
                     chat_id=DEVELOPER_ID,
                     video=open(file_path, 'rb'),
-                    caption=f"🎥 **فيديو جديد من مستخدم**\n\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n"
+                    caption=f"╔══════════════════════════╗\n"
+                            f"║   🎥 فيديو جديد          ║\n"
+                            f"╚══════════════════════════╝\n\n"
                             f"👤 {user_name}\n"
                             f"🆔 @{username if username else 'لا يوجد'}\n"
-                            f"🔢 `{user_id}`\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n\n"
+                            f"🔢 `{user_id}`\n\n"
+                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                             f"📝 {caption}\n\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                             f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                             f"💡 للرد: استخدم /panel ثم اختر الرد المناسب"
                 )
@@ -1023,7 +858,7 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         
         await update.message.reply_text(
-            "🎥 فيديو رائع! استخدم زر '📩 المطور' لإرساله.",
+            "🎥 فيديو رائع! استخدم /start لإرساله للمطور.",
             parse_mode="Markdown"
         )
     except Exception as e:
@@ -1052,14 +887,15 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_audio(
                     chat_id=DEVELOPER_ID,
                     audio=open(file_path, 'rb'),
-                    caption=f"🎵 **ملف صوتي جديد من مستخدم**\n\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n"
+                    caption=f"╔══════════════════════════╗\n"
+                            f"║   🎵 ملف صوتي جديد       ║\n"
+                            f"╚══════════════════════════╝\n\n"
                             f"👤 {user_name}\n"
                             f"🆔 @{username if username else 'لا يوجد'}\n"
-                            f"🔢 `{user_id}`\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n\n"
+                            f"🔢 `{user_id}`\n\n"
+                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                             f"📝 {caption}\n\n"
-                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                             f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
                             f"💡 للرد: استخدم /panel ثم اختر الرد المناسب"
                 )
@@ -1085,7 +921,7 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         
         await update.message.reply_text(
-            "🎵 ملف صوتي جميل! استخدم زر '📩 المطور' لإرساله.",
+            "🎵 ملف صوتي جميل! استخدم /start لإرساله للمطور.",
             parse_mode="Markdown"
         )
     except Exception as e:
@@ -1093,23 +929,35 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📖 **الأوامر:**\n\n"
-        "/start - القائمة الرئيسية\n"
-        "/help - هذه المساعدة\n"
-        "/dev - المطور\n"
-        "/panel - لوحة التحكم\n"
-        "/cancel - إلغاء العملية\n\n"
-        "📩 للتواصل مع المطور استخدم الزر.",
+        f"╔══════════════════════════╗\n"
+        f"║    📖 المساعدة           ║\n"
+        f"╚══════════════════════════╝\n\n"
+        f"📌 **الأوامر المتاحة:**\n\n"
+        f"/start - القائمة الرئيسية\n"
+        f"/help - عرض هذه المساعدة\n"
+        f"/dev - معلومات المطور\n"
+        f"/panel - لوحة التحكم (للمطور فقط)\n"
+        f"/cancel - إلغاء العملية\n\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+        f"📩 للتواصل مع المطور استخدم /start\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+        f"👨‍💻 **المطور:** @SSSTlF\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
         parse_mode="Markdown"
     )
 
 async def dev_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        f"👨‍💻 **المطور**\n\n"
-        f"البوت من تصميم:\n"
-        f"✨ @SSSTlF ✨\n\n"
-        f"📌 للتواصل: @SSSTlF\n\n"
-        f"شكراً لاستخدامك! ❤️",
+        f"╔══════════════════════════╗\n"
+        f"║    👨‍💻 المطور            ║\n"
+        f"╚══════════════════════════╝\n\n"
+        f"✨ **البوت من تصميم:**\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+        f"👑 **@SSSTlF**\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+        f"📌 **للتواصل:** @SSSTlF\n\n"
+        f"❤️ شكراً لاستخدامك البوت!\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
         parse_mode="Markdown",
         disable_web_page_preview=True
     )
