@@ -18,6 +18,7 @@ DEVELOPER_ID = 1170411845
 
 # ========== ملفات البيانات ==========
 DATA_FILE = "bot_data.json"
+REPLIES_FILE = "replies_data.json"
 
 # ========== تحميل/حفظ البيانات ==========
 def load_data():
@@ -34,6 +35,16 @@ def load_data():
 def save_data(data):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
+def load_replies():
+    if os.path.exists(REPLIES_FILE):
+        with open(REPLIES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+def save_replies(replies):
+    with open(REPLIES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(replies, f, ensure_ascii=False, indent=4)
 
 # ========== قوائم المحتوى ==========
 JOKES = [
@@ -380,6 +391,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="admin_ban")],
                 [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
                 [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
+                [InlineKeyboardButton("📩 رد على رسالة", callback_data="admin_reply")],
                 [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -475,6 +487,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     reply_markup=reply_markup,
                     parse_mode="Markdown"
                 )
+        
+        elif data_callback == "admin_reply" and user_id == DEVELOPER_ID:
+            context.user_data['waiting_for'] = 'reply_to_user'
+            await query.edit_message_text(
+                "📩 **الرد على مستخدم**\n\n"
+                "أرسل **آيدي المستخدم** ثم **الرسالة**.\n"
+                "الصيغة: `ايدي|الرسالة`\n\n"
+                "مثال: `123456789|مرحباً كيف حالك؟`\n\n"
+                "لإلغاء: /cancel",
+                parse_mode="Markdown"
+            )
     except Exception as e:
         logging.error(f"Error in button_handler: {e}")
 
@@ -562,36 +585,107 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         parse_mode="Markdown"
                     )
                 return
+            
+            elif context.user_data.get('waiting_for') == 'reply_to_user':
+                try:
+                    # تقسيم الرسالة: ايدي|الرسالة
+                    parts = user_message.split('|', 1)
+                    if len(parts) != 2:
+                        await update.message.reply_text(
+                            "❌ **خطأ في الصيغة!**\n\n"
+                            "استخدم: `ايدي|الرسالة`\n"
+                            "مثال: `123456789|مرحباً كيف حالك؟`",
+                            parse_mode="Markdown"
+                        )
+                        return
+                    
+                    target_id = int(parts[0].strip())
+                    reply_text = parts[1].strip()
+                    
+                    if not reply_text:
+                        await update.message.reply_text(
+                            "❌ **الرسالة فارغة!**",
+                            parse_mode="Markdown"
+                        )
+                        return
+                    
+                    # إرسال الرد للمستخدم
+                    await context.bot.send_message(
+                        chat_id=target_id,
+                        text=f"📩 **رسالة من المطور**\n\n"
+                             f"━━━━━━━━━━━━━━━━━━━\n"
+                             f"{reply_text}\n\n"
+                             f"━━━━━━━━━━━━━━━━━━━\n"
+                             f"✧ للرد على المطور استخدم زر 📩 المطور ✧",
+                        parse_mode="Markdown"
+                    )
+                    
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الرد بنجاح!**\n\n"
+                        f"👤 المستخدم: `{target_id}`\n"
+                        f"📝 الرسالة:\n{reply_text}",
+                        parse_mode="Markdown"
+                    )
+                    
+                    context.user_data['waiting_for'] = None
+                    
+                except ValueError:
+                    await update.message.reply_text(
+                        "❌ **خطأ:** يرجى إرسال آيدي صحيح (أرقام فقط).",
+                        parse_mode="Markdown"
+                    )
+                except Exception as e:
+                    await update.message.reply_text(
+                        f"❌ **حدث خطأ أثناء الإرسال.**\n"
+                        f"تأكد من أن المستخدم بدأ البوت أولاً.",
+                        parse_mode="Markdown"
+                    )
+                    logging.error(f"Error sending reply: {e}")
+                return
         
         # ========== إرسال رسالة للمطور ==========
         if context.user_data.get('waiting_for') == 'message_to_dev':
             try:
+                # حفظ معلومات المستخدم للرد عليه لاحقاً
+                replies = load_replies()
+                replies[str(user_id)] = {
+                    "name": user_name,
+                    "username": username,
+                    "message": user_message,
+                    "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                save_replies(replies)
+                
                 # إرسال للمطور مع جميع المعلومات
                 await context.bot.send_message(
                     chat_id=DEVELOPER_ID,
-                    text=f"📩 **رسالة جديدة**\n\n"
+                    text=f"📩 **رسالة جديدة من مستخدم**\n\n"
                          f"━━━━━━━━━━━━━━━━━━━\n"
-                         f"👤 {user_name}\n"
-                         f"🆔 @{username if username else 'لا يوجد'}\n"
-                         f"🔢 `{user_id}`\n"
+                         f"👤 **الاسم:** {user_name}\n"
+                         f"🆔 **اليوزر:** @{username if username else 'لا يوجد'}\n"
+                         f"🔢 **الايدي:** `{user_id}`\n"
                          f"━━━━━━━━━━━━━━━━━━━\n\n"
-                         f"📝 {user_message}\n\n"
+                         f"📝 **الرسالة:**\n"
+                         f"{user_message}\n\n"
                          f"━━━━━━━━━━━━━━━━━━━\n"
-                         f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                         f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                         f"💡 **للرد:** استخدم أمر الرد في لوحة التحكم\n"
+                         f"📌 أو أرسل: `{user_id}|رسالتك`",
                     parse_mode="Markdown"
                 )
                 
                 # تأكيد للمستخدم
                 await update.message.reply_text(
-                    f"✅ **تم الإرسال بنجاح!**\n\n"
+                    f"✅ **تم إرسال رسالتك بنجاح!**\n\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"👤 {user_name}\n"
                     f"🆔 @{username if username else 'لا يوجد'}\n"
                     f"🔢 `{user_id}`\n"
                     f"━━━━━━━━━━━━━━━━━━━\n\n"
-                    f"📝 {user_message}\n\n"
+                    f"📝 **رسالتك:**\n{user_message}\n\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"شكراً لتواصلك مع @SSSTlF 🙏",
+                    f"شكراً لتواصلك مع @SSSTlF 🙏\n"
+                    f"سيتم الرد عليك قريباً.",
                     parse_mode="Markdown"
                 )
                 
@@ -605,6 +699,36 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 logging.error(f"Error sending message to developer: {e}")
             
             return
+        
+        # ========== التحقق من رسائل المطور ==========
+        # إذا كان المطور يرد على مستخدم (صيغة: ايدي|رسالة)
+        if user_id == DEVELOPER_ID and '|' in user_message:
+            try:
+                parts = user_message.split('|', 1)
+                if len(parts) == 2:
+                    target_id = int(parts[0].strip())
+                    reply_text = parts[1].strip()
+                    
+                    if reply_text:
+                        await context.bot.send_message(
+                            chat_id=target_id,
+                            text=f"📩 **رسالة من المطور**\n\n"
+                                 f"━━━━━━━━━━━━━━━━━━━\n"
+                                 f"{reply_text}\n\n"
+                                 f"━━━━━━━━━━━━━━━━━━━\n"
+                                 f"✧ للرد على المطور استخدم زر 📩 المطور ✧",
+                            parse_mode="Markdown"
+                        )
+                        
+                        await update.message.reply_text(
+                            f"✅ **تم إرسال الرد بنجاح!**\n\n"
+                            f"👤 المستخدم: `{target_id}`\n"
+                            f"📝 الرسالة:\n{reply_text}",
+                            parse_mode="Markdown"
+                        )
+                        return
+            except:
+                pass
         
         ai_reply = get_ai_response(user_message)
         await update.message.reply_text(ai_reply, parse_mode="Markdown")
@@ -634,7 +758,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_photo(
                     chat_id=DEVELOPER_ID,
                     photo=open(file_path, 'rb'),
-                    caption=f"🖼️ **صورة جديدة**\n\n"
+                    caption=f"🖼️ **صورة جديدة من مستخدم**\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
                             f"👤 {user_name}\n"
                             f"🆔 @{username if username else 'لا يوجد'}\n"
@@ -642,7 +766,8 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             f"━━━━━━━━━━━━━━━━━━━\n\n"
                             f"📝 {caption}\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
-                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                            f"💡 للرد: `{user_id}|رسالتك`"
                 )
                 
                 if os.path.exists(file_path):
@@ -695,7 +820,7 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_video(
                     chat_id=DEVELOPER_ID,
                     video=open(file_path, 'rb'),
-                    caption=f"🎥 **فيديو جديد**\n\n"
+                    caption=f"🎥 **فيديو جديد من مستخدم**\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
                             f"👤 {user_name}\n"
                             f"🆔 @{username if username else 'لا يوجد'}\n"
@@ -703,7 +828,8 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             f"━━━━━━━━━━━━━━━━━━━\n\n"
                             f"📝 {caption}\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
-                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                            f"💡 للرد: `{user_id}|رسالتك`"
                 )
                 
                 if os.path.exists(file_path):
@@ -756,7 +882,7 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_audio(
                     chat_id=DEVELOPER_ID,
                     audio=open(file_path, 'rb'),
-                    caption=f"🎵 **ملف صوتي جديد**\n\n"
+                    caption=f"🎵 **ملف صوتي جديد من مستخدم**\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
                             f"👤 {user_name}\n"
                             f"🆔 @{username if username else 'لا يوجد'}\n"
@@ -764,7 +890,8 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             f"━━━━━━━━━━━━━━━━━━━\n\n"
                             f"📝 {caption}\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
-                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                            f"💡 للرد: `{user_id}|رسالتك`"
                 )
                 
                 if os.path.exists(file_path):
@@ -832,9 +959,12 @@ def main():
     print(f"🆔 ID المطور: {DEVELOPER_ID}")
     print(f"🤖 التوكن: {BOT_TOKEN[:10]}... (مخفي)")
     
-    # إنشاء ملف البيانات إذا لم يكن موجوداً
+    # إنشاء ملفات البيانات إذا لم تكن موجودة
     if not os.path.exists(DATA_FILE):
         save_data({"users": [], "banned_users": [], "bot_active": True, "total_users": 0})
+    
+    if not os.path.exists(REPLIES_FILE):
+        save_replies({})
     
     app = Application.builder().token(BOT_TOKEN).build()
     
@@ -861,7 +991,7 @@ def main():
     app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     
     print("✅ البوت يعمل الآن...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
 
 if __name__ == "__main__":
     main()
