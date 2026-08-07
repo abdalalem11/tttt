@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO)
 BOT_TOKEN = "8760673859:AAF04DjMq2-mDSo33maG0cdUpa5TsiObddY"
 
 # ========== إعدادات المطور ==========
-DEVELOPER_USERNAME = "@u_t_r"
-DEVELOPER_ID = 1170411845
+DEVELOPER_USERNAME = "@SSSTlF"
+DEVELOPER_ID = 1170411845  # غير هذا الى ايدي المطور الجديد
 
 # ========== ملفات البيانات ==========
 DATA_FILE = "bot_data.json"
@@ -131,7 +131,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if str(user_id) in data["banned_users"]:
         await update.message.reply_text(
             "🚫 **أنت محظور من استخدام هذا البوت.**\n"
-            "للتواصل مع المطور: @u_t_r",
+            "للتواصل مع المطور: @SSSTlF",
             parse_mode="Markdown"
         )
         return
@@ -161,7 +161,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = [
         [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
-        [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InInlineKeyboardButton("💡 نصيحة", callback_data="tip")],
+        [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
         [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
         [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
     ]
@@ -174,7 +174,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.reply_text(
         f"👑 **بوت التواصل الذكي** 👑\n\n"
-        f"✧ مطوري: @u_t_r ✧\n\n"
+        f"✧ مطوري: @SSSTlF ✧\n\n"
         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
         f"🤖 ذكاء  •  😂 نكتة\n"
         f"🕌 ديني  •  💡 نصيحة\n"
@@ -210,7 +210,7 @@ async def panel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
     await update.message.reply_text(
         f"⚙️ **لوحة التحكم**\n\n"
-        f"👨‍💻 المطور: @u_t_r\n"
+        f"👨‍💻 المطور: @SSSTlF\n"
         f"📊 المستخدمين: {data['total_users']}\n"
         f"🚫 المحظورين: {len(data['banned_users'])}\n"
         f"📌 الحالة: {status}\n\n"
@@ -295,7 +295,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         await query.edit_message_text(
             f"📩 **التواصل مع المطور**\n\n"
-            f"👨‍💻 المطور: @u_t_r\n\n"
+            f"👨‍💻 المطور: @SSSTlF\n\n"
             f"⚠️ **تنبيه:**\n"
             f"المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
             f"اختر نوع الملف:",
@@ -307,7 +307,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['waiting_for'] = 'message_to_dev'
         await query.edit_message_text(
             f"📝 **أرسل رسالتك الآن**\n\n"
-            f"للمطور @u_t_r\n\n"
+            f"للمطور @SSSTlF\n\n"
             f"⚠️ المحتوى المخالف = حظر فوري\n\n"
             f"⏳ انتظر... سأرسلها فوراً.",
             parse_mode="Markdown"
@@ -317,7 +317,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['waiting_for'] = 'photo_to_dev'
         await query.edit_message_text(
             f"🖼️ **أرسل الصورة الآن**\n\n"
-            f"للمطور @u_t_r\n\n"
+            f"للمطور @SSSTlF\n\n"
             f"⚠️ المحتوى المخالف = حظر فوري\n\n"
             f"💬 يمكنك إضافة تعليق.",
             parse_mode="Markdown"
@@ -327,7 +327,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['waiting_for'] = 'video_to_dev'
         await query.edit_message_text(
             f"🎥 **أرسل الفيديو الآن**\n\n"
-            f"للمطور @u_t_r\n\n"
+            f"للمطور @SSSTlF\n\n"
             f"⚠️ المحتوى المخالف = حظر فوري\n\n"
             f"💬 يمكنك إضافة تعليق.",
             parse_mode="Markdown"
@@ -337,7 +337,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['waiting_for'] = 'audio_to_dev'
         await query.edit_message_text(
             f"🎵 **أرسل الصوت الآن**\n\n"
-            f"للمطور @u_t_r\n\n"
+            f"للمطور @SSSTlF\n\n"
             f"⚠️ المحتوى المخالف = حظر فوري\n\n"
             f"💬 يمكنك إضافة تعليق.",
             parse_mode="Markdown"
@@ -356,7 +356,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         await query.edit_message_text(
             f"👑 **بوت التواصل الذكي** 👑\n\n"
-            f"✧ مطوري: @u_t_r ✧\n\n"
+            f"✧ مطوري: @SSSTlF ✧\n\n"
             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
             f"🤖 ذكاء  •  😂 نكتة\n"
             f"🕌 ديني  •  💡 نصيحة\n"
@@ -383,7 +383,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
         await query.edit_message_text(
             f"⚙️ **لوحة التحكم**\n\n"
-            f"👨‍💻 المطور: @u_t_r\n"
+            f"👨‍💻 المطور: @SSSTlF\n"
             f"📊 المستخدمين: {data['total_users']}\n"
             f"🚫 المحظورين: {len(data['banned_users'])}\n"
             f"📌 الحالة: {status}\n\n"
@@ -493,7 +493,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
         await update.message.reply_text(
             "🚫 **أنت محظور من استخدام هذا البوت.**\n"
-            "للتواصل مع المطور: @u_t_r",
+            "للتواصل مع المطور: @SSSTlF",
             parse_mode="Markdown"
         )
         return
@@ -584,7 +584,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"━━━━━━━━━━━━━━━━━━━\n\n"
                 f"📝 {user_message}\n\n"
                 f"━━━━━━━━━━━━━━━━━━━\n"
-                f"شكراً لتواصلك مع @u_t_r 🙏",
+                f"شكراً لتواصلك مع @SSSTlF 🙏",
                 parse_mode="Markdown"
             )
             
@@ -640,7 +640,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await update.message.reply_text(
                 f"✅ **تم إرسال الصورة بنجاح!**\n\n"
-                f"شكراً لتواصلك مع @u_t_r 🙏",
+                f"شكراً لتواصلك مع @SSSTlF 🙏",
                 parse_mode="Markdown"
             )
             
@@ -698,7 +698,7 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await update.message.reply_text(
                 f"✅ **تم إرسال الفيديو بنجاح!**\n\n"
-                f"شكراً لتواصلك مع @u_t_r 🙏",
+                f"شكراً لتواصلك مع @SSSTlF 🙏",
                 parse_mode="Markdown"
             )
             
@@ -756,7 +756,7 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await update.message.reply_text(
                 f"✅ **تم إرسال الملف الصوتي بنجاح!**\n\n"
-                f"شكراً لتواصلك مع @u_t_r 🙏",
+                f"شكراً لتواصلك مع @SSSTlF 🙏",
                 parse_mode="Markdown"
             )
             
@@ -792,8 +792,8 @@ async def dev_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         f"👨‍💻 **المطور**\n\n"
         f"البوت من تصميم:\n"
-        f"✨ @u_t_r ✨\n\n"
-        f"📌 للتواصل: @u_t_r\n\n"
+        f"✨ @SSSTlF ✨\n\n"
+        f"📌 للتواصل: @SSSTlF\n\n"
         f"شكراً لاستخدامك! ❤️",
         parse_mode="Markdown",
         disable_web_page_preview=True
@@ -810,7 +810,7 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     print("🚀 تشغيل بوت التواصل الذكي...")
-    print(f"👨‍💻 المطور: @u_t_r")
+    print(f"👨‍💻 المطور: @SSSTlF")
     print(f"🆔 ID المطور: {DEVELOPER_ID}")
     print(f"🤖 التوكن: {BOT_TOKEN[:10]}... (مخفي)")
     
