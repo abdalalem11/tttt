@@ -9,7 +9,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 logging.basicConfig(level=logging.INFO)
 
 # ========== التوكن الجديد ==========
-BOT_TOKEN = "8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ"
+BOT_TOKEN = "8760673859:AAF04DjMq2-mDSo33maG0cdUpa5TsiObddY"
 
 # ========== إعدادات المطور ==========
 DEVELOPER_USERNAME = "@u_t_r"
@@ -177,47 +177,66 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     
     elif data == "contact_dev":
-        # زر التواصل مع المطور
         keyboard = [
-            [InlineKeyboardButton("📝 إرسال رسالة", callback_data="send_message")],
-            [InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
+            [InlineKeyboardButton("📝 رسالة", callback_data="send_message")],
+            [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
+            [InlineKeyboardButton("🎥 فيديو", callback_data="send_video")],
+            [InlineKeyboardButton("🎵 صوت", callback_data="send_audio")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await query.edit_message_text(
             f"📩 **التواصل مع المطور**\n\n"
-            f"المطور: {DEVELOPER_USERNAME}\n\n"
-            f"اختر طريقة التواصل:\n"
-            f"• 📝 رسالة نصية\n"
-            f"• 🖼️ صورة\n\n"
-            f"سيتم إرسال رسالتك مباشرة للمطور.",
+            f"👨‍💻 المطور: {DEVELOPER_USERNAME}\n\n"
+            f"⚠️ **تنبيه:**\n"
+            f"إذا أرسلت أي محتوى مخالف أو غير لائق، سيتم **حظرك فوراً** من قبل المطور.\n\n"
+            f"اختر نوع الملف الذي تريد إرساله:",
             reply_markup=reply_markup,
             parse_mode="Markdown"
         )
     
     elif data == "send_message":
-        # المستخدم يريد إرسال رسالة نصية
         context.user_data['waiting_for'] = 'message_to_dev'
         await query.edit_message_text(
             f"📝 **أرسل رسالتك الآن**\n\n"
             f"اكتب الرسالة التي تريد إرسالها للمطور {DEVELOPER_USERNAME}\n\n"
+            f"⚠️ تذكر: المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
             f"⏳ انتظر... سأرسلها فور استلامها.",
             parse_mode="Markdown"
         )
     
     elif data == "send_photo":
-        # المستخدم يريد إرسال صورة
         context.user_data['waiting_for'] = 'photo_to_dev'
         await query.edit_message_text(
             f"🖼️ **أرسل الصورة الآن**\n\n"
             f"أرسل الصورة التي تريد إرسالها للمطور {DEVELOPER_USERNAME}\n\n"
-            f"⏳ يمكنك إضافة تعليق مع الصورة.",
+            f"⚠️ تذكر: المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
+            f"💬 يمكنك إضافة تعليق مع الصورة.",
+            parse_mode="Markdown"
+        )
+    
+    elif data == "send_video":
+        context.user_data['waiting_for'] = 'video_to_dev'
+        await query.edit_message_text(
+            f"🎥 **أرسل الفيديو الآن**\n\n"
+            f"أرسل الفيديو الذي تريد إرساله للمطور {DEVELOPER_USERNAME}\n\n"
+            f"⚠️ تذكر: المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
+            f"💬 يمكنك إضافة تعليق مع الفيديو.",
+            parse_mode="Markdown"
+        )
+    
+    elif data == "send_audio":
+        context.user_data['waiting_for'] = 'audio_to_dev'
+        await query.edit_message_text(
+            f"🎵 **أرسل الصوت الآن**\n\n"
+            f"أرسل الملف الصوتي الذي تريد إرساله للمطور {DEVELOPER_USERNAME}\n\n"
+            f"⚠️ تذكر: المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
+            f"💬 يمكنك إضافة تعليق مع الصوت.",
             parse_mode="Markdown"
         )
     
     elif data == "back_to_start":
-        # رجوع للقائمة الرئيسية
         keyboard = [
             [InlineKeyboardButton("🤖 ذكاء اصطناعي", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
             [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
@@ -239,11 +258,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.message.from_user.first_name
     username = update.message.from_user.username
     
-    # التحقق إذا كان المستخدم في وضع إرسال رسالة للمطور
     if context.user_data.get('waiting_for') == 'message_to_dev':
-        # إرسال الرسالة للمطور
         try:
-            # محاولة إرسال للمطور
             await context.bot.send_message(
                 chat_id=DEVELOPER_ID,
                 text=f"📩 **رسالة جديدة من مستخدم**\n\n"
@@ -253,7 +269,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      f"📝 **الرسالة:**\n{user_message}"
             )
             
-            # إعلام المستخدم بالنجاح
             await update.message.reply_text(
                 f"✅ **تم إرسال رسالتك بنجاح!**\n\n"
                 f"شكراً لك {user_name} على تواصلك مع المطور {DEVELOPER_USERNAME}\n"
@@ -261,7 +276,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode="Markdown"
             )
             
-            # إعادة تعيين الحالة
             context.user_data['waiting_for'] = None
             
         except Exception as e:
@@ -274,27 +288,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         return
     
-    # ردود الذكاء الاصطناعي العادية (بدون أزرار)
     ai_reply = get_ai_response(user_message)
     await update.message.reply_text(ai_reply, parse_mode="Markdown")
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """معالجة الصور المرسلة للمطور"""
     user_id = update.message.from_user.id
     user_name = update.message.from_user.first_name
     username = update.message.from_user.username
-    photo_file = update.message.photo[-1]  # أكبر صورة
+    photo_file = update.message.photo[-1]
     caption = update.message.caption or "بدون تعليق"
     
-    # التحقق إذا كان المستخدم في وضع إرسال صورة للمطور
     if context.user_data.get('waiting_for') == 'photo_to_dev':
         try:
-            # تحميل الصورة
             file = await context.bot.get_file(photo_file.file_id)
             file_path = f"photo_{user_id}_{photo_file.file_id}.jpg"
             await file.download_to_drive(file_path)
             
-            # إرسال الصورة للمطور مع معلومات المستخدم
             await context.bot.send_photo(
                 chat_id=DEVELOPER_ID,
                 photo=open(file_path, 'rb'),
@@ -305,11 +314,9 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         f"📝 **التعليق:**\n{caption}"
             )
             
-            # حذف الصورة من السيرفر
             if os.path.exists(file_path):
                 os.remove(file_path)
             
-            # إعلام المستخدم بالنجاح
             await update.message.reply_text(
                 f"✅ **تم إرسال صورتك بنجاح!**\n\n"
                 f"شكراً لك {user_name} على تواصلك مع المطور {DEVELOPER_USERNAME}\n"
@@ -317,7 +324,6 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode="Markdown"
             )
             
-            # إعادة تعيين الحالة
             context.user_data['waiting_for'] = None
             
         except Exception as e:
@@ -330,9 +336,108 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         return
     
-    # إذا كانت صورة عادية وليس في وضع الإرسال
     await update.message.reply_text(
         "📸 صورة جميلة! لكن إذا كنت تريد إرسالها للمطور، استخدم زر '📩 تواصل مع المطور' أولاً.",
+        parse_mode="Markdown"
+    )
+
+async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.message.from_user.id
+    user_name = update.message.from_user.first_name
+    username = update.message.from_user.username
+    video_file = update.message.video
+    caption = update.message.caption or "بدون تعليق"
+    
+    if context.user_data.get('waiting_for') == 'video_to_dev':
+        try:
+            file = await context.bot.get_file(video_file.file_id)
+            file_path = f"video_{user_id}_{video_file.file_id}.mp4"
+            await file.download_to_drive(file_path)
+            
+            await context.bot.send_video(
+                chat_id=DEVELOPER_ID,
+                video=open(file_path, 'rb'),
+                caption=f"🎥 **فيديو جديد من مستخدم**\n\n"
+                        f"👤 الاسم: {user_name}\n"
+                        f"🆔 المعرف: @{username if username else 'لا يوجد'}\n"
+                        f"🆔 الآيدي: {user_id}\n\n"
+                        f"📝 **التعليق:**\n{caption}"
+            )
+            
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            await update.message.reply_text(
+                f"✅ **تم إرسال الفيديو بنجاح!**\n\n"
+                f"شكراً لك {user_name} على تواصلك مع المطور {DEVELOPER_USERNAME}\n"
+                f"سيتم الرد عليك في أقرب وقت. 🙏",
+                parse_mode="Markdown"
+            )
+            
+            context.user_data['waiting_for'] = None
+            
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ عذراً، حدث خطأ أثناء إرسال الفيديو.\n"
+                f"الرجاء المحاولة مرة أخرى لاحقاً.",
+                parse_mode="Markdown"
+            )
+            logging.error(f"Error sending video to developer: {e}")
+        
+        return
+    
+    await update.message.reply_text(
+        "🎥 فيديو رائع! لكن إذا كنت تريد إرساله للمطور، استخدم زر '📩 تواصل مع المطور' أولاً.",
+        parse_mode="Markdown"
+    )
+
+async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.message.from_user.id
+    user_name = update.message.from_user.first_name
+    username = update.message.from_user.username
+    audio_file = update.message.audio
+    caption = update.message.caption or "بدون تعليق"
+    
+    if context.user_data.get('waiting_for') == 'audio_to_dev':
+        try:
+            file = await context.bot.get_file(audio_file.file_id)
+            file_path = f"audio_{user_id}_{audio_file.file_id}.mp3"
+            await file.download_to_drive(file_path)
+            
+            await context.bot.send_audio(
+                chat_id=DEVELOPER_ID,
+                audio=open(file_path, 'rb'),
+                caption=f"🎵 **ملف صوتي جديد من مستخدم**\n\n"
+                        f"👤 الاسم: {user_name}\n"
+                        f"🆔 المعرف: @{username if username else 'لا يوجد'}\n"
+                        f"🆔 الآيدي: {user_id}\n\n"
+                        f"📝 **التعليق:**\n{caption}"
+            )
+            
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            await update.message.reply_text(
+                f"✅ **تم إرسال الملف الصوتي بنجاح!**\n\n"
+                f"شكراً لك {user_name} على تواصلك مع المطور {DEVELOPER_USERNAME}\n"
+                f"سيتم الرد عليك في أقرب وقت. 🙏",
+                parse_mode="Markdown"
+            )
+            
+            context.user_data['waiting_for'] = None
+            
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ عذراً، حدث خطأ أثناء إرسال الملف الصوتي.\n"
+                f"الرجاء المحاولة مرة أخرى لاحقاً.",
+                parse_mode="Markdown"
+            )
+            logging.error(f"Error sending audio to developer: {e}")
+        
+        return
+    
+    await update.message.reply_text(
+        "🎵 ملف صوتي جميل! لكن إذا كنت تريد إرساله للمطور، استخدم زر '📩 تواصل مع المطور' أولاً.",
         parse_mode="Markdown"
     )
 
@@ -382,6 +487,12 @@ def main():
     
     # معالج الصور
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    
+    # معالج الفيديو
+    app.add_handler(MessageHandler(filters.VIDEO, handle_video))
+    
+    # معالج الصوت
+    app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     
     print("✅ البوت يعمل الآن...")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
