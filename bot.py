@@ -168,7 +168,18 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         data_callback = query.data
 
         # ========== ردود المطور ==========
-        if data_callback.startswith("reply_photo_"):
+        # رد برسالة مخصصة (جديد)
+        if data_callback.startswith("reply_custom_"):
+            target_id = int(data_callback.split('_')[2])
+            context.user_data['replying_to_custom'] = target_id
+            context.user_data['waiting_for'] = 'custom_reply'
+            await query.edit_message_text(
+                f"✏️ **أرسل رسالتك المخصصة للرد**\n👤 للمستخدم: `{target_id}`\n\nلإلغاء: /cancel",
+                parse_mode="Markdown"
+            )
+            return
+
+        elif data_callback.startswith("reply_photo_"):
             target_id = int(data_callback.split('_')[2])
             context.user_data['replying_to_photo'] = target_id
             context.user_data['waiting_for'] = 'reply_photo'
@@ -347,6 +358,48 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logging.error(f"Error in button_handler: {e}")
 
+# ========== معالج الرد المخصص (جديد) ==========
+
+async def handle_custom_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """معالج الرد المخصص من المطور"""
+    try:
+        user_id = update.message.from_user.id
+        user_message = update.message.text
+        
+        if user_id != DEVELOPER_ID:
+            return
+        
+        if context.user_data.get('waiting_for') != 'custom_reply':
+            return
+        
+        target_id = context.user_data.get('replying_to_custom')
+        if not target_id:
+            await update.message.reply_text("❌ لا يوجد مستخدم مستهدف.", parse_mode="Markdown")
+            context.user_data.clear()
+            return
+        
+        try:
+            await context.bot.send_message(
+                chat_id=target_id,
+                text=f"📩 **رد من المطور @SSSTlF**\n\n{user_message}",
+                parse_mode="Markdown"
+            )
+            
+            await update.message.reply_text(
+                f"✅ **تم الإرسال!**\n👤 `{target_id}`\n📝 {user_message}",
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ **خطأ:** لم يتمكن البوت من إرسال الرد.",
+                parse_mode="Markdown"
+            )
+        
+        context.user_data.clear()
+        
+    except Exception as e:
+        logging.error(f"Error in handle_custom_reply: {e}")
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         user_id = update.message.from_user.id
@@ -413,6 +466,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 save_replies(replies)
                 
                 keyboard = [
+                    [
+                        InlineKeyboardButton("✏️ رد برسالة مخصصة", callback_data=f"reply_custom_{user_id}"),
+                    ],
                     [
                         InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
                         InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
@@ -482,12 +538,16 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 keyboard = [
                     [
+                        InlineKeyboardButton("✏️ رد برسالة مخصصة", callback_data=f"reply_custom_{user_id}"),
                         InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
-                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                     ],
                     [
+                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                         InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                    ],
+                    [
                         InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                        InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
                     ],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
                 ]
@@ -542,12 +602,16 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 keyboard = [
                     [
+                        InlineKeyboardButton("✏️ رد برسالة مخصصة", callback_data=f"reply_custom_{user_id}"),
                         InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
-                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                     ],
                     [
+                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                         InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                    ],
+                    [
                         InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                        InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
                     ],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
                 ]
@@ -602,12 +666,16 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 keyboard = [
                     [
+                        InlineKeyboardButton("✏️ رد برسالة مخصصة", callback_data=f"reply_custom_{user_id}"),
                         InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
-                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                     ],
                     [
+                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                         InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                    ],
+                    [
                         InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                        InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
                     ],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
                 ]
@@ -665,12 +733,16 @@ async def handle_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 keyboard = [
                     [
+                        InlineKeyboardButton("✏️ رد برسالة مخصصة", callback_data=f"reply_custom_{user_id}"),
                         InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
-                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                     ],
                     [
+                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                         InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                    ],
+                    [
                         InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                        InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
                     ],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
                 ]
@@ -725,12 +797,16 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 keyboard = [
                     [
+                        InlineKeyboardButton("✏️ رد برسالة مخصصة", callback_data=f"reply_custom_{user_id}"),
                         InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
-                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                     ],
                     [
+                        InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
                         InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                    ],
+                    [
                         InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                        InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
                     ],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
                 ]
@@ -794,6 +870,7 @@ def main():
     app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     app.add_handler(MessageHandler(filters.Sticker.ALL, handle_sticker))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.User(DEVELOPER_ID), handle_custom_reply))
     
     print("✅ البوت يعمل الآن...")
     app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
