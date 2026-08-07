@@ -167,8 +167,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         data_callback = query.data
 
-        # ========== ردود المطور ==========
-        # رد برسالة مخصصة (جديد)
+        # ========== رد برسالة مخصصة ==========
         if data_callback.startswith("reply_custom_"):
             target_id = int(data_callback.split('_')[2])
             context.user_data['replying_to_custom'] = target_id
@@ -179,6 +178,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
+        # ========== ردود المطور ==========
         elif data_callback.startswith("reply_photo_"):
             target_id = int(data_callback.split('_')[2])
             context.user_data['replying_to_photo'] = target_id
@@ -358,7 +358,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logging.error(f"Error in button_handler: {e}")
 
-# ========== معالج الرد المخصص (جديد) ==========
+# ========== معالج الرد المخصص ==========
 
 async def handle_custom_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """معالج الرد المخصص من المطور"""
@@ -366,9 +366,11 @@ async def handle_custom_reply(update: Update, context: ContextTypes.DEFAULT_TYPE
         user_id = update.message.from_user.id
         user_message = update.message.text
         
+        # التأكد أن المستخدم هو المطور
         if user_id != DEVELOPER_ID:
             return
         
+        # التأكد أننا في وضع الرد المخصص
         if context.user_data.get('waiting_for') != 'custom_reply':
             return
         
@@ -378,6 +380,7 @@ async def handle_custom_reply(update: Update, context: ContextTypes.DEFAULT_TYPE
             context.user_data.clear()
             return
         
+        # إرسال الرسالة للمستخدم
         try:
             await context.bot.send_message(
                 chat_id=target_id,
@@ -395,10 +398,12 @@ async def handle_custom_reply(update: Update, context: ContextTypes.DEFAULT_TYPE
                 parse_mode="Markdown"
             )
         
+        # تنظيف البيانات
         context.user_data.clear()
         
     except Exception as e:
         logging.error(f"Error in handle_custom_reply: {e}")
+        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -406,6 +411,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_name = update.message.from_user.first_name
         username = update.message.from_user.username
         user_message = update.message.text
+        
+        # ========== معالج الرد المخصص (يتم تشغيله قبل أي شيء) ==========
+        if user_id == DEVELOPER_ID and context.user_data.get('waiting_for') == 'custom_reply':
+            await handle_custom_reply(update, context)
+            return
         
         if user_message and user_message.lower() == "/cancel":
             context.user_data.clear()
@@ -870,7 +880,6 @@ def main():
     app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
     app.add_handler(MessageHandler(filters.Sticker.ALL, handle_sticker))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.User(DEVELOPER_ID), handle_custom_reply))
     
     print("✅ البوت يعمل الآن...")
     app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
