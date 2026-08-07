@@ -14,7 +14,7 @@ BOT_TOKEN = "8760673859:AAF04DjMq2-mDSo33maG0cdUpa5TsiObddY"
 
 # ========== إعدادات المطور ==========
 DEVELOPER_USERNAME = "@SSSTlF"
-DEVELOPER_ID = 1170411845  # غير هذا الى ايدي المطور الجديد
+DEVELOPER_ID = 1170411845
 
 # ========== ملفات البيانات ==========
 DATA_FILE = "bot_data.json"
@@ -120,71 +120,74 @@ def get_ai_response(user_message):
 # ========== دوال البوت ==========
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.first_name
-    username = update.message.from_user.username
-    
-    # تحميل البيانات
-    data = load_data()
-    
-    # التحقق من الحظر
-    if str(user_id) in data["banned_users"]:
-        await update.message.reply_text(
-            "🚫 **أنت محظور من استخدام هذا البوت.**\n"
-            "للتواصل مع المطور: @SSSTlF",
-            parse_mode="Markdown"
-        )
-        return
-    
-    # إضافة المستخدم إذا كان جديداً
-    if str(user_id) not in data["users"]:
-        data["users"].append(str(user_id))
-        data["total_users"] = len(data["users"])
-        save_data(data)
+    try:
+        user_id = update.message.from_user.id
+        user_name = update.message.from_user.first_name
+        username = update.message.from_user.username
         
-        # إرسال إشعار للمطور
-        try:
-            await context.bot.send_message(
-                chat_id=DEVELOPER_ID,
-                text=f"🆕 **مستخدم جديد دخل البوت!**\n\n"
-                     f"━━━━━━━━━━━━━━━━━━━\n"
-                     f"👤 **الاسم:** {user_name}\n"
-                     f"🆔 **اليوزر:** @{username if username else 'لا يوجد'}\n"
-                     f"🔢 **الايدي:** `{user_id}`\n"
-                     f"━━━━━━━━━━━━━━━━━━━\n\n"
-                     f"📊 إجمالي المستخدمين: {data['total_users']}\n"
-                     f"⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        # تحميل البيانات
+        data = load_data()
+        
+        # التحقق من الحظر
+        if str(user_id) in data["banned_users"]:
+            await update.message.reply_text(
+                "🚫 **أنت محظور من استخدام هذا البوت.**\n"
+                "للتواصل مع المطور: @SSSTlF",
                 parse_mode="Markdown"
             )
-        except:
-            pass
-    
-    keyboard = [
-        [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
-        [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
-        [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
-        [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
-    ]
-    
-    # إضافة زر لوحة التحكم للمطور فقط
-    if user_id == DEVELOPER_ID:
-        keyboard.append([InlineKeyboardButton("⚙️ التحكم", callback_data="admin_panel")])
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(
-        f"👑 **بوت التواصل الذكي** 👑\n\n"
-        f"✧ مطوري: @SSSTlF ✧\n\n"
-        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-        f"🤖 ذكاء  •  😂 نكتة\n"
-        f"🕌 ديني  •  💡 نصيحة\n"
-        f"❤️ حب  •  📱 تليجرام\n"
-        f"📩 تواصل مع المطور\n"
-        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
-        f"✨ أرسل وسأرد بذكاء",
-        reply_markup=reply_markup,
-        parse_mode="Markdown"
-    )
+            return
+        
+        # إضافة المستخدم إذا كان جديداً
+        if str(user_id) not in data["users"]:
+            data["users"].append(str(user_id))
+            data["total_users"] = len(data["users"])
+            save_data(data)
+            
+            # إرسال إشعار للمطور
+            try:
+                await context.bot.send_message(
+                    chat_id=DEVELOPER_ID,
+                    text=f"🆕 **مستخدم جديد دخل البوت!**\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"👤 **الاسم:** {user_name}\n"
+                         f"🆔 **اليوزر:** @{username if username else 'لا يوجد'}\n"
+                         f"🔢 **الايدي:** `{user_id}`\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n\n"
+                         f"📊 إجمالي المستخدمين: {data['total_users']}\n"
+                         f"⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                    parse_mode="Markdown"
+                )
+            except:
+                pass
+        
+        keyboard = [
+            [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
+            [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
+            [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
+            [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
+        ]
+        
+        # إضافة زر لوحة التحكم للمطور فقط
+        if user_id == DEVELOPER_ID:
+            keyboard.append([InlineKeyboardButton("⚙️ التحكم", callback_data="admin_panel")])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await update.message.reply_text(
+            f"👑 **بوت التواصل الذكي** 👑\n\n"
+            f"✧ مطوري: @SSSTlF ✧\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"🤖 ذكاء  •  😂 نكتة\n"
+            f"🕌 ديني  •  💡 نصيحة\n"
+            f"❤️ حب  •  📱 تليجرام\n"
+            f"📩 تواصل مع المطور\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+            f"✨ أرسل وسأرد بذكاء",
+            reply_markup=reply_markup,
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logging.error(f"Error in start: {e}")
 
 async def panel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
@@ -220,561 +223,576 @@ async def panel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    
-    data = load_data()
-    user_id = query.from_user.id
-    
-    # التحقق من الحظر
-    if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
-        await query.edit_message_text(
-            "🚫 **أنت محظور من استخدام هذا البوت.**",
-            parse_mode="Markdown"
-        )
-        return
-    
-    # التحقق من تفعيل البوت
-    if not data["bot_active"] and user_id != DEVELOPER_ID:
-        await query.edit_message_text(
-            "⏸️ **البوت معطل حالياً.** يرجى المحاولة لاحقاً.",
-            parse_mode="Markdown"
-        )
-        return
-    
-    data_callback = query.data
-    user_name = query.from_user.first_name
-    username = query.from_user.username
-    
-    if data_callback == "ai":
-        await query.edit_message_text(
-            "🤖 **مرحباً! أنا الذكاء الاصطناعي هنا.**\n\n"
-            "أرسل لي أي سؤال أو رسالة وسأرد عليك بأفضل شكل. 🌟",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "joke":
-        await query.edit_message_text(
-            f"😂 **نكتة اليوم** 😂\n\n{random.choice(JOKES)}",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "religious":
-        await query.edit_message_text(
-            f"🕌 **اقتباس ديني** 🕌\n\n{random.choice(RELIGIOUS)}",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "tip":
-        await query.edit_message_text(
-            f"💡 **نصيحة اليوم** 💡\n\n{random.choice(TIPS)}",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "love":
-        await query.edit_message_text(
-            f"❤️ **رسالة حب** ❤️\n\n{random.choice(LOVE)}\n\nلك {user_name} 💫",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "telegram":
-        await query.edit_message_text(
-            f"📱 **معلومة عن تليجرام** 📱\n\n{random.choice(TELEGRAM_FACTS)}",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "contact_dev":
-        keyboard = [
-            [InlineKeyboardButton("📝 رسالة", callback_data="send_message")],
-            [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
-            [InlineKeyboardButton("🎥 فيديو", callback_data="send_video")],
-            [InlineKeyboardButton("🎵 صوت", callback_data="send_audio")],
-            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    try:
+        query = update.callback_query
+        await query.answer()
         
-        await query.edit_message_text(
-            f"📩 **التواصل مع المطور**\n\n"
-            f"👨‍💻 المطور: @SSSTlF\n\n"
-            f"⚠️ **تنبيه:**\n"
-            f"المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
-            f"اختر نوع الملف:",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "send_message":
-        context.user_data['waiting_for'] = 'message_to_dev'
-        await query.edit_message_text(
-            f"📝 **أرسل رسالتك الآن**\n\n"
-            f"للمطور @SSSTlF\n\n"
-            f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-            f"⏳ انتظر... سأرسلها فوراً.",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "send_photo":
-        context.user_data['waiting_for'] = 'photo_to_dev'
-        await query.edit_message_text(
-            f"🖼️ **أرسل الصورة الآن**\n\n"
-            f"للمطور @SSSTlF\n\n"
-            f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-            f"💬 يمكنك إضافة تعليق.",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "send_video":
-        context.user_data['waiting_for'] = 'video_to_dev'
-        await query.edit_message_text(
-            f"🎥 **أرسل الفيديو الآن**\n\n"
-            f"للمطور @SSSTlF\n\n"
-            f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-            f"💬 يمكنك إضافة تعليق.",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "send_audio":
-        context.user_data['waiting_for'] = 'audio_to_dev'
-        await query.edit_message_text(
-            f"🎵 **أرسل الصوت الآن**\n\n"
-            f"للمطور @SSSTlF\n\n"
-            f"⚠️ المحتوى المخالف = حظر فوري\n\n"
-            f"💬 يمكنك إضافة تعليق.",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "back_to_start":
-        keyboard = [
-            [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
-            [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
-            [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
-            [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
-        ]
-        if user_id == DEVELOPER_ID:
-            keyboard.append([InlineKeyboardButton("⚙️ التحكم", callback_data="admin_panel")])
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        data = load_data()
+        user_id = query.from_user.id
         
-        await query.edit_message_text(
-            f"👑 **بوت التواصل الذكي** 👑\n\n"
-            f"✧ مطوري: @SSSTlF ✧\n\n"
-            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-            f"🤖 ذكاء  •  😂 نكتة\n"
-            f"🕌 ديني  •  💡 نصيحة\n"
-            f"❤️ حب  •  📱 تليجرام\n"
-            f"📩 تواصل مع المطور\n"
-            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
-            f"✨ أرسل وسأرد بذكاء",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
-        )
-    
-    # ========== لوحة تحكم المطور ==========
-    elif data_callback == "admin_panel" and user_id == DEVELOPER_ID:
-        keyboard = [
-            [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats")],
-            [InlineKeyboardButton("⏸️ تعطيل البوت", callback_data="admin_disable")] if data["bot_active"] else [InlineKeyboardButton("▶️ تفعيل البوت", callback_data="admin_enable")],
-            [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="admin_ban")],
-            [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
-            [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
-            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
-        await query.edit_message_text(
-            f"⚙️ **لوحة التحكم**\n\n"
-            f"👨‍💻 المطور: @SSSTlF\n"
-            f"📊 المستخدمين: {data['total_users']}\n"
-            f"🚫 المحظورين: {len(data['banned_users'])}\n"
-            f"📌 الحالة: {status}\n\n"
-            f"اختر الإجراء:",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "admin_stats" and user_id == DEVELOPER_ID:
-        keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        await query.edit_message_text(
-            f"📊 **الإحصائيات**\n\n"
-            f"👥 المستخدمين: {data['total_users']}\n"
-            f"🚫 المحظورين: {len(data['banned_users'])}\n"
-            f"📌 الحالة: {'🟢 مفعل' if data['bot_active'] else '🔴 معطل'}\n"
-            f"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "admin_disable" and user_id == DEVELOPER_ID:
-        data["bot_active"] = False
-        save_data(data)
-        
-        keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        await query.edit_message_text(
-            "⏸️ **تم تعطيل البوت بنجاح!**",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "admin_enable" and user_id == DEVELOPER_ID:
-        data["bot_active"] = True
-        save_data(data)
-        
-        keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        await query.edit_message_text(
-            "▶️ **تم تفعيل البوت بنجاح!**",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "admin_ban" and user_id == DEVELOPER_ID:
-        context.user_data['waiting_for'] = 'ban_user'
-        await query.edit_message_text(
-            "🚫 **حظر مستخدم**\n\n"
-            "أرسل **آيدي المستخدم**.\n"
-            "مثال: `123456789`\n\n"
-            "لإلغاء: /cancel",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "admin_unban" and user_id == DEVELOPER_ID:
-        context.user_data['waiting_for'] = 'unban_user'
-        await query.edit_message_text(
-            "✅ **الغاء حظر**\n\n"
-            "أرسل **آيدي المستخدم**.\n"
-            "مثال: `123456789`\n\n"
-            "لإلغاء: /cancel",
-            parse_mode="Markdown"
-        )
-    
-    elif data_callback == "admin_banned_list" and user_id == DEVELOPER_ID:
-        keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        if data["banned_users"]:
-            banned_list = "\n".join([f"🚫 `{uid}`" for uid in data["banned_users"]])
+        # التحقق من الحظر
+        if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
             await query.edit_message_text(
-                f"📋 **المحظورين**\n\n"
-                f"{banned_list}\n\n"
-                f"العدد: {len(data['banned_users'])}",
+                "🚫 **أنت محظور من استخدام هذا البوت.**",
+                parse_mode="Markdown"
+            )
+            return
+        
+        # التحقق من تفعيل البوت
+        if not data["bot_active"] and user_id != DEVELOPER_ID:
+            await query.edit_message_text(
+                "⏸️ **البوت معطل حالياً.** يرجى المحاولة لاحقاً.",
+                parse_mode="Markdown"
+            )
+            return
+        
+        data_callback = query.data
+        user_name = query.from_user.first_name
+        username = query.from_user.username
+        
+        if data_callback == "ai":
+            await query.edit_message_text(
+                "🤖 **مرحباً! أنا الذكاء الاصطناعي هنا.**\n\n"
+                "أرسل لي أي سؤال أو رسالة وسأرد عليك بأفضل شكل. 🌟",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "joke":
+            await query.edit_message_text(
+                f"😂 **نكتة اليوم** 😂\n\n{random.choice(JOKES)}",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "religious":
+            await query.edit_message_text(
+                f"🕌 **اقتباس ديني** 🕌\n\n{random.choice(RELIGIOUS)}",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "tip":
+            await query.edit_message_text(
+                f"💡 **نصيحة اليوم** 💡\n\n{random.choice(TIPS)}",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "love":
+            await query.edit_message_text(
+                f"❤️ **رسالة حب** ❤️\n\n{random.choice(LOVE)}\n\nلك {user_name} 💫",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "telegram":
+            await query.edit_message_text(
+                f"📱 **معلومة عن تليجرام** 📱\n\n{random.choice(TELEGRAM_FACTS)}",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "contact_dev":
+            keyboard = [
+                [InlineKeyboardButton("📝 رسالة", callback_data="send_message")],
+                [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
+                [InlineKeyboardButton("🎥 فيديو", callback_data="send_video")],
+                [InlineKeyboardButton("🎵 صوت", callback_data="send_audio")],
+                [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                f"📩 **التواصل مع المطور**\n\n"
+                f"👨‍💻 المطور: @SSSTlF\n\n"
+                f"⚠️ **تنبيه:**\n"
+                f"المحتوى المخالف يؤدي إلى الحظر الفوري.\n\n"
+                f"اختر نوع الملف:",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
-        else:
+        
+        elif data_callback == "send_message":
+            context.user_data['waiting_for'] = 'message_to_dev'
             await query.edit_message_text(
-                "✅ **لا يوجد محظورين.**",
+                f"📝 **أرسل رسالتك الآن**\n\n"
+                f"للمطور @SSSTlF\n\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
+                f"⏳ انتظر... سأرسلها فوراً.",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "send_photo":
+            context.user_data['waiting_for'] = 'photo_to_dev'
+            await query.edit_message_text(
+                f"🖼️ **أرسل الصورة الآن**\n\n"
+                f"للمطور @SSSTlF\n\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
+                f"💬 يمكنك إضافة تعليق.",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "send_video":
+            context.user_data['waiting_for'] = 'video_to_dev'
+            await query.edit_message_text(
+                f"🎥 **أرسل الفيديو الآن**\n\n"
+                f"للمطور @SSSTlF\n\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
+                f"💬 يمكنك إضافة تعليق.",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "send_audio":
+            context.user_data['waiting_for'] = 'audio_to_dev'
+            await query.edit_message_text(
+                f"🎵 **أرسل الصوت الآن**\n\n"
+                f"للمطور @SSSTlF\n\n"
+                f"⚠️ المحتوى المخالف = حظر فوري\n\n"
+                f"💬 يمكنك إضافة تعليق.",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "back_to_start":
+            keyboard = [
+                [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
+                [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
+                [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
+                [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
+            ]
+            if user_id == DEVELOPER_ID:
+                keyboard.append([InlineKeyboardButton("⚙️ التحكم", callback_data="admin_panel")])
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                f"👑 **بوت التواصل الذكي** 👑\n\n"
+                f"✧ مطوري: @SSSTlF ✧\n\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                f"🤖 ذكاء  •  😂 نكتة\n"
+                f"🕌 ديني  •  💡 نصيحة\n"
+                f"❤️ حب  •  📱 تليجرام\n"
+                f"📩 تواصل مع المطور\n"
+                f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+                f"✨ أرسل وسأرد بذكاء",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
+        
+        # ========== لوحة تحكم المطور ==========
+        elif data_callback == "admin_panel" and user_id == DEVELOPER_ID:
+            keyboard = [
+                [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats")],
+                [InlineKeyboardButton("⏸️ تعطيل البوت", callback_data="admin_disable")] if data["bot_active"] else [InlineKeyboardButton("▶️ تفعيل البوت", callback_data="admin_enable")],
+                [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="admin_ban")],
+                [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
+                [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
+                [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
+            await query.edit_message_text(
+                f"⚙️ **لوحة التحكم**\n\n"
+                f"👨‍💻 المطور: @SSSTlF\n"
+                f"📊 المستخدمين: {data['total_users']}\n"
+                f"🚫 المحظورين: {len(data['banned_users'])}\n"
+                f"📌 الحالة: {status}\n\n"
+                f"اختر الإجراء:",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "admin_stats" and user_id == DEVELOPER_ID:
+            keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                f"📊 **الإحصائيات**\n\n"
+                f"👥 المستخدمين: {data['total_users']}\n"
+                f"🚫 المحظورين: {len(data['banned_users'])}\n"
+                f"📌 الحالة: {'🟢 مفعل' if data['bot_active'] else '🔴 معطل'}\n"
+                f"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "admin_disable" and user_id == DEVELOPER_ID:
+            data["bot_active"] = False
+            save_data(data)
+            
+            keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                "⏸️ **تم تعطيل البوت بنجاح!**",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "admin_enable" and user_id == DEVELOPER_ID:
+            data["bot_active"] = True
+            save_data(data)
+            
+            keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                "▶️ **تم تفعيل البوت بنجاح!**",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "admin_ban" and user_id == DEVELOPER_ID:
+            context.user_data['waiting_for'] = 'ban_user'
+            await query.edit_message_text(
+                "🚫 **حظر مستخدم**\n\n"
+                "أرسل **آيدي المستخدم**.\n"
+                "مثال: `123456789`\n\n"
+                "لإلغاء: /cancel",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "admin_unban" and user_id == DEVELOPER_ID:
+            context.user_data['waiting_for'] = 'unban_user'
+            await query.edit_message_text(
+                "✅ **الغاء حظر**\n\n"
+                "أرسل **آيدي المستخدم**.\n"
+                "مثال: `123456789`\n\n"
+                "لإلغاء: /cancel",
+                parse_mode="Markdown"
+            )
+        
+        elif data_callback == "admin_banned_list" and user_id == DEVELOPER_ID:
+            keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            if data["banned_users"]:
+                banned_list = "\n".join([f"🚫 `{uid}`" for uid in data["banned_users"]])
+                await query.edit_message_text(
+                    f"📋 **المحظورين**\n\n"
+                    f"{banned_list}\n\n"
+                    f"العدد: {len(data['banned_users'])}",
+                    reply_markup=reply_markup,
+                    parse_mode="Markdown"
+                )
+            else:
+                await query.edit_message_text(
+                    "✅ **لا يوجد محظورين.**",
+                    reply_markup=reply_markup,
+                    parse_mode="Markdown"
+                )
+    except Exception as e:
+        logging.error(f"Error in button_handler: {e}")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.first_name
-    username = update.message.from_user.username
-    user_message = update.message.text
-    
-    # التحقق من إلغاء الأمر
-    if user_message and user_message.lower() == "/cancel":
-        context.user_data['waiting_for'] = None
-        await update.message.reply_text(
-            "❌ **تم إلغاء العملية.**",
-            parse_mode="Markdown"
-        )
-        return
-    
-    data = load_data()
-    
-    # التحقق من الحظر
-    if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
-        await update.message.reply_text(
-            "🚫 **أنت محظور من استخدام هذا البوت.**\n"
-            "للتواصل مع المطور: @SSSTlF",
-            parse_mode="Markdown"
-        )
-        return
-    
-    # التحقق من تفعيل البوت
-    if not data["bot_active"] and user_id != DEVELOPER_ID:
-        await update.message.reply_text(
-            "⏸️ **البوت معطل حالياً.** يرجى المحاولة لاحقاً.",
-            parse_mode="Markdown"
-        )
-        return
-    
-    # ========== أوامر المطور ==========
-    if user_id == DEVELOPER_ID:
-        if context.user_data.get('waiting_for') == 'ban_user':
-            try:
-                target_id = int(user_message.strip())
-                if str(target_id) not in data["banned_users"]:
-                    data["banned_users"].append(str(target_id))
-                    save_data(data)
-                    await update.message.reply_text(
-                        f"✅ **تم حظر المستخدم بنجاح!**\n\n"
-                        f"🆔 الآيدي: `{target_id}`",
-                        parse_mode="Markdown"
-                    )
-                else:
-                    await update.message.reply_text(
-                        "⚠️ **هذا المستخدم محظور بالفعل.**",
-                        parse_mode="Markdown"
-                    )
-                context.user_data['waiting_for'] = None
-            except ValueError:
-                await update.message.reply_text(
-                    "❌ **خطأ:** يرجى إرسال آيدي صحيح (أرقام فقط).",
-                    parse_mode="Markdown"
-                )
-            return
+    try:
+        user_id = update.message.from_user.id
+        user_name = update.message.from_user.first_name
+        username = update.message.from_user.username
+        user_message = update.message.text
         
-        elif context.user_data.get('waiting_for') == 'unban_user':
-            try:
-                target_id = int(user_message.strip())
-                if str(target_id) in data["banned_users"]:
-                    data["banned_users"].remove(str(target_id))
-                    save_data(data)
-                    await update.message.reply_text(
-                        f"✅ **تم الغاء حظر المستخدم بنجاح!**\n\n"
-                        f"🆔 الآيدي: `{target_id}`",
-                        parse_mode="Markdown"
-                    )
-                else:
-                    await update.message.reply_text(
-                        "⚠️ **هذا المستخدم غير محظور.**",
-                        parse_mode="Markdown"
-                    )
-                context.user_data['waiting_for'] = None
-            except ValueError:
-                await update.message.reply_text(
-                    "❌ **خطأ:** يرجى إرسال آيدي صحيح (أرقام فقط).",
-                    parse_mode="Markdown"
-                )
-            return
-    
-    # ========== إرسال رسالة للمطور ==========
-    if context.user_data.get('waiting_for') == 'message_to_dev':
-        try:
-            # إرسال للمطور مع جميع المعلومات
-            await context.bot.send_message(
-                chat_id=DEVELOPER_ID,
-                text=f"📩 **رسالة جديدة**\n\n"
-                     f"━━━━━━━━━━━━━━━━━━━\n"
-                     f"👤 {user_name}\n"
-                     f"🆔 @{username if username else 'لا يوجد'}\n"
-                     f"🔢 `{user_id}`\n"
-                     f"━━━━━━━━━━━━━━━━━━━\n\n"
-                     f"📝 {user_message}\n\n"
-                     f"━━━━━━━━━━━━━━━━━━━\n"
-                     f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-                parse_mode="Markdown"
-            )
-            
-            # تأكيد للمستخدم
-            await update.message.reply_text(
-                f"✅ **تم الإرسال بنجاح!**\n\n"
-                f"━━━━━━━━━━━━━━━━━━━\n"
-                f"👤 {user_name}\n"
-                f"🆔 @{username if username else 'لا يوجد'}\n"
-                f"🔢 `{user_id}`\n"
-                f"━━━━━━━━━━━━━━━━━━━\n\n"
-                f"📝 {user_message}\n\n"
-                f"━━━━━━━━━━━━━━━━━━━\n"
-                f"شكراً لتواصلك مع @SSSTlF 🙏",
-                parse_mode="Markdown"
-            )
-            
+        # التحقق من إلغاء الأمر
+        if user_message and user_message.lower() == "/cancel":
             context.user_data['waiting_for'] = None
-            
-        except Exception as e:
             await update.message.reply_text(
-                f"❌ عذراً، حدث خطأ أثناء إرسال الرسالة.",
+                "❌ **تم إلغاء العملية.**",
                 parse_mode="Markdown"
             )
-            logging.error(f"Error sending message to developer: {e}")
+            return
         
-        return
-    
-    ai_reply = get_ai_response(user_message)
-    await update.message.reply_text(ai_reply, parse_mode="Markdown")
+        data = load_data()
+        
+        # التحقق من الحظر
+        if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
+            await update.message.reply_text(
+                "🚫 **أنت محظور من استخدام هذا البوت.**\n"
+                "للتواصل مع المطور: @SSSTlF",
+                parse_mode="Markdown"
+            )
+            return
+        
+        # التحقق من تفعيل البوت
+        if not data["bot_active"] and user_id != DEVELOPER_ID:
+            await update.message.reply_text(
+                "⏸️ **البوت معطل حالياً.** يرجى المحاولة لاحقاً.",
+                parse_mode="Markdown"
+            )
+            return
+        
+        # ========== أوامر المطور ==========
+        if user_id == DEVELOPER_ID:
+            if context.user_data.get('waiting_for') == 'ban_user':
+                try:
+                    target_id = int(user_message.strip())
+                    if str(target_id) not in data["banned_users"]:
+                        data["banned_users"].append(str(target_id))
+                        save_data(data)
+                        await update.message.reply_text(
+                            f"✅ **تم حظر المستخدم بنجاح!**\n\n"
+                            f"🆔 الآيدي: `{target_id}`",
+                            parse_mode="Markdown"
+                        )
+                    else:
+                        await update.message.reply_text(
+                            "⚠️ **هذا المستخدم محظور بالفعل.**",
+                            parse_mode="Markdown"
+                        )
+                    context.user_data['waiting_for'] = None
+                except ValueError:
+                    await update.message.reply_text(
+                        "❌ **خطأ:** يرجى إرسال آيدي صحيح (أرقام فقط).",
+                        parse_mode="Markdown"
+                    )
+                return
+            
+            elif context.user_data.get('waiting_for') == 'unban_user':
+                try:
+                    target_id = int(user_message.strip())
+                    if str(target_id) in data["banned_users"]:
+                        data["banned_users"].remove(str(target_id))
+                        save_data(data)
+                        await update.message.reply_text(
+                            f"✅ **تم الغاء حظر المستخدم بنجاح!**\n\n"
+                            f"🆔 الآيدي: `{target_id}`",
+                            parse_mode="Markdown"
+                        )
+                    else:
+                        await update.message.reply_text(
+                            "⚠️ **هذا المستخدم غير محظور.**",
+                            parse_mode="Markdown"
+                        )
+                    context.user_data['waiting_for'] = None
+                except ValueError:
+                    await update.message.reply_text(
+                        "❌ **خطأ:** يرجى إرسال آيدي صحيح (أرقام فقط).",
+                        parse_mode="Markdown"
+                    )
+                return
+        
+        # ========== إرسال رسالة للمطور ==========
+        if context.user_data.get('waiting_for') == 'message_to_dev':
+            try:
+                # إرسال للمطور مع جميع المعلومات
+                await context.bot.send_message(
+                    chat_id=DEVELOPER_ID,
+                    text=f"📩 **رسالة جديدة**\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"👤 {user_name}\n"
+                         f"🆔 @{username if username else 'لا يوجد'}\n"
+                         f"🔢 `{user_id}`\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n\n"
+                         f"📝 {user_message}\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                    parse_mode="Markdown"
+                )
+                
+                # تأكيد للمستخدم
+                await update.message.reply_text(
+                    f"✅ **تم الإرسال بنجاح!**\n\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"👤 {user_name}\n"
+                    f"🆔 @{username if username else 'لا يوجد'}\n"
+                    f"🔢 `{user_id}`\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"📝 {user_message}\n\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"شكراً لتواصلك مع @SSSTlF 🙏",
+                    parse_mode="Markdown"
+                )
+                
+                context.user_data['waiting_for'] = None
+                
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ عذراً، حدث خطأ أثناء إرسال الرسالة.",
+                    parse_mode="Markdown"
+                )
+                logging.error(f"Error sending message to developer: {e}")
+            
+            return
+        
+        ai_reply = get_ai_response(user_message)
+        await update.message.reply_text(ai_reply, parse_mode="Markdown")
+    except Exception as e:
+        logging.error(f"Error in handle_message: {e}")
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.first_name
-    username = update.message.from_user.username
-    photo_file = update.message.photo[-1]
-    caption = update.message.caption or "بدون تعليق"
-    
-    data = load_data()
-    
-    if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
-        await update.message.reply_text("🚫 أنت محظور.")
-        return
-    
-    if context.user_data.get('waiting_for') == 'photo_to_dev':
-        try:
-            file = await context.bot.get_file(photo_file.file_id)
-            file_path = f"photo_{user_id}_{photo_file.file_id}.jpg"
-            await file.download_to_drive(file_path)
-            
-            await context.bot.send_photo(
-                chat_id=DEVELOPER_ID,
-                photo=open(file_path, 'rb'),
-                caption=f"🖼️ **صورة جديدة**\n\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"👤 {user_name}\n"
-                        f"🆔 @{username if username else 'لا يوجد'}\n"
-                        f"🔢 `{user_id}`\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n\n"
-                        f"📝 {caption}\n\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            )
-            
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            
-            await update.message.reply_text(
-                f"✅ **تم إرسال الصورة بنجاح!**\n\n"
-                f"شكراً لتواصلك مع @SSSTlF 🙏",
-                parse_mode="Markdown"
-            )
-            
-            context.user_data['waiting_for'] = None
-            
-        except Exception as e:
-            await update.message.reply_text(
-                f"❌ عذراً، حدث خطأ أثناء إرسال الصورة.",
-                parse_mode="Markdown"
-            )
-            logging.error(f"Error sending photo: {e}")
+    try:
+        user_id = update.message.from_user.id
+        user_name = update.message.from_user.first_name
+        username = update.message.from_user.username
+        photo_file = update.message.photo[-1]
+        caption = update.message.caption or "بدون تعليق"
         
-        return
-    
-    await update.message.reply_text(
-        "📸 صورة جميلة! استخدم زر '📩 المطور' لإرسالها.",
-        parse_mode="Markdown"
-    )
+        data = load_data()
+        
+        if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
+            await update.message.reply_text("🚫 أنت محظور.")
+            return
+        
+        if context.user_data.get('waiting_for') == 'photo_to_dev':
+            try:
+                file = await context.bot.get_file(photo_file.file_id)
+                file_path = f"photo_{user_id}_{photo_file.file_id}.jpg"
+                await file.download_to_drive(file_path)
+                
+                await context.bot.send_photo(
+                    chat_id=DEVELOPER_ID,
+                    photo=open(file_path, 'rb'),
+                    caption=f"🖼️ **صورة جديدة**\n\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"👤 {user_name}\n"
+                            f"🆔 @{username if username else 'لا يوجد'}\n"
+                            f"🔢 `{user_id}`\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n\n"
+                            f"📝 {caption}\n\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+                
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                
+                await update.message.reply_text(
+                    f"✅ **تم إرسال الصورة بنجاح!**\n\n"
+                    f"شكراً لتواصلك مع @SSSTlF 🙏",
+                    parse_mode="Markdown"
+                )
+                
+                context.user_data['waiting_for'] = None
+                
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ عذراً، حدث خطأ أثناء إرسال الصورة.",
+                    parse_mode="Markdown"
+                )
+                logging.error(f"Error sending photo: {e}")
+            
+            return
+        
+        await update.message.reply_text(
+            "📸 صورة جميلة! استخدم زر '📩 المطور' لإرسالها.",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logging.error(f"Error in handle_photo: {e}")
 
 async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.first_name
-    username = update.message.from_user.username
-    video_file = update.message.video
-    caption = update.message.caption or "بدون تعليق"
-    
-    data = load_data()
-    
-    if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
-        await update.message.reply_text("🚫 أنت محظور.")
-        return
-    
-    if context.user_data.get('waiting_for') == 'video_to_dev':
-        try:
-            file = await context.bot.get_file(video_file.file_id)
-            file_path = f"video_{user_id}_{video_file.file_id}.mp4"
-            await file.download_to_drive(file_path)
-            
-            await context.bot.send_video(
-                chat_id=DEVELOPER_ID,
-                video=open(file_path, 'rb'),
-                caption=f"🎥 **فيديو جديد**\n\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"👤 {user_name}\n"
-                        f"🆔 @{username if username else 'لا يوجد'}\n"
-                        f"🔢 `{user_id}`\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n\n"
-                        f"📝 {caption}\n\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            )
-            
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            
-            await update.message.reply_text(
-                f"✅ **تم إرسال الفيديو بنجاح!**\n\n"
-                f"شكراً لتواصلك مع @SSSTlF 🙏",
-                parse_mode="Markdown"
-            )
-            
-            context.user_data['waiting_for'] = None
-            
-        except Exception as e:
-            await update.message.reply_text(
-                f"❌ عذراً، حدث خطأ أثناء إرسال الفيديو.",
-                parse_mode="Markdown"
-            )
-            logging.error(f"Error sending video: {e}")
+    try:
+        user_id = update.message.from_user.id
+        user_name = update.message.from_user.first_name
+        username = update.message.from_user.username
+        video_file = update.message.video
+        caption = update.message.caption or "بدون تعليق"
         
-        return
-    
-    await update.message.reply_text(
-        "🎥 فيديو رائع! استخدم زر '📩 المطور' لإرساله.",
-        parse_mode="Markdown"
-    )
+        data = load_data()
+        
+        if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
+            await update.message.reply_text("🚫 أنت محظور.")
+            return
+        
+        if context.user_data.get('waiting_for') == 'video_to_dev':
+            try:
+                file = await context.bot.get_file(video_file.file_id)
+                file_path = f"video_{user_id}_{video_file.file_id}.mp4"
+                await file.download_to_drive(file_path)
+                
+                await context.bot.send_video(
+                    chat_id=DEVELOPER_ID,
+                    video=open(file_path, 'rb'),
+                    caption=f"🎥 **فيديو جديد**\n\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"👤 {user_name}\n"
+                            f"🆔 @{username if username else 'لا يوجد'}\n"
+                            f"🔢 `{user_id}`\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n\n"
+                            f"📝 {caption}\n\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+                
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                
+                await update.message.reply_text(
+                    f"✅ **تم إرسال الفيديو بنجاح!**\n\n"
+                    f"شكراً لتواصلك مع @SSSTlF 🙏",
+                    parse_mode="Markdown"
+                )
+                
+                context.user_data['waiting_for'] = None
+                
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ عذراً، حدث خطأ أثناء إرسال الفيديو.",
+                    parse_mode="Markdown"
+                )
+                logging.error(f"Error sending video: {e}")
+            
+            return
+        
+        await update.message.reply_text(
+            "🎥 فيديو رائع! استخدم زر '📩 المطور' لإرساله.",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logging.error(f"Error in handle_video: {e}")
 
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.first_name
-    username = update.message.from_user.username
-    audio_file = update.message.audio
-    caption = update.message.caption or "بدون تعليق"
-    
-    data = load_data()
-    
-    if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
-        await update.message.reply_text("🚫 أنت محظور.")
-        return
-    
-    if context.user_data.get('waiting_for') == 'audio_to_dev':
-        try:
-            file = await context.bot.get_file(audio_file.file_id)
-            file_path = f"audio_{user_id}_{audio_file.file_id}.mp3"
-            await file.download_to_drive(file_path)
-            
-            await context.bot.send_audio(
-                chat_id=DEVELOPER_ID,
-                audio=open(file_path, 'rb'),
-                caption=f"🎵 **ملف صوتي جديد**\n\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"👤 {user_name}\n"
-                        f"🆔 @{username if username else 'لا يوجد'}\n"
-                        f"🔢 `{user_id}`\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n\n"
-                        f"📝 {caption}\n\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            )
-            
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            
-            await update.message.reply_text(
-                f"✅ **تم إرسال الملف الصوتي بنجاح!**\n\n"
-                f"شكراً لتواصلك مع @SSSTlF 🙏",
-                parse_mode="Markdown"
-            )
-            
-            context.user_data['waiting_for'] = None
-            
-        except Exception as e:
-            await update.message.reply_text(
-                f"❌ عذراً، حدث خطأ أثناء إرسال الملف الصوتي.",
-                parse_mode="Markdown"
-            )
-            logging.error(f"Error sending audio: {e}")
+    try:
+        user_id = update.message.from_user.id
+        user_name = update.message.from_user.first_name
+        username = update.message.from_user.username
+        audio_file = update.message.audio
+        caption = update.message.caption or "بدون تعليق"
         
-        return
-    
-    await update.message.reply_text(
-        "🎵 ملف صوتي جميل! استخدم زر '📩 المطور' لإرساله.",
-        parse_mode="Markdown"
-    )
+        data = load_data()
+        
+        if str(user_id) in data["banned_users"] and user_id != DEVELOPER_ID:
+            await update.message.reply_text("🚫 أنت محظور.")
+            return
+        
+        if context.user_data.get('waiting_for') == 'audio_to_dev':
+            try:
+                file = await context.bot.get_file(audio_file.file_id)
+                file_path = f"audio_{user_id}_{audio_file.file_id}.mp3"
+                await file.download_to_drive(file_path)
+                
+                await context.bot.send_audio(
+                    chat_id=DEVELOPER_ID,
+                    audio=open(file_path, 'rb'),
+                    caption=f"🎵 **ملف صوتي جديد**\n\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"👤 {user_name}\n"
+                            f"🆔 @{username if username else 'لا يوجد'}\n"
+                            f"🔢 `{user_id}`\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n\n"
+                            f"📝 {caption}\n\n"
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+                
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                
+                await update.message.reply_text(
+                    f"✅ **تم إرسال الملف الصوتي بنجاح!**\n\n"
+                    f"شكراً لتواصلك مع @SSSTlF 🙏",
+                    parse_mode="Markdown"
+                )
+                
+                context.user_data['waiting_for'] = None
+                
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ عذراً، حدث خطأ أثناء إرسال الملف الصوتي.",
+                    parse_mode="Markdown"
+                )
+                logging.error(f"Error sending audio: {e}")
+            
+            return
+        
+        await update.message.reply_text(
+            "🎵 ملف صوتي جميل! استخدم زر '📩 المطور' لإرساله.",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logging.error(f"Error in handle_audio: {e}")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
