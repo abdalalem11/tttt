@@ -166,8 +166,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         
         data_callback = query.data
-        user_name = query.from_user.first_name
-        username = query.from_user.username
 
         # ========== ردود المطور ==========
         if data_callback.startswith("reply_photo_"):
