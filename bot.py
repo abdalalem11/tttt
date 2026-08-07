@@ -9,7 +9,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 # إعداد التسجيل
 logging.basicConfig(level=logging.INFO)
 
-# ========== التوكن الجديد ==========
+# ========== التوكن ==========
 BOT_TOKEN = "8760673859:AAF04DjMq2-mDSo33maG0cdUpa5TsiObddY"
 
 # ========== إعدادات المطور ==========
