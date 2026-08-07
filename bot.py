@@ -8,14 +8,12 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 # إعداد التسجيل
 logging.basicConfig(level=logging.INFO)
 
-# التوكن من متغيرات البيئة
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-if not BOT_TOKEN:
-    raise ValueError("❌ BOT_TOKEN غير موجود!")
+# ========== التوكن الجديد ==========
+BOT_TOKEN = "8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ"
 
 # ========== إعدادات المطور ==========
 DEVELOPER_USERNAME = "@u_t_r"
-DEVELOPER_ID = 1170411845  # ✅ تم تحديثه بآيديك
+DEVELOPER_ID = 1170411845
 
 # ========== قوائم المحتوى ==========
 
@@ -367,6 +365,7 @@ def main():
     print("🚀 تشغيل بوت التواصل الذكي...")
     print(f"👨‍💻 المطور: {DEVELOPER_USERNAME}")
     print(f"🆔 ID المطور: {DEVELOPER_ID}")
+    print(f"🤖 التوكن: {BOT_TOKEN[:10]}... (مخفي)")
     
     app = Application.builder().token(BOT_TOKEN).build()
     
