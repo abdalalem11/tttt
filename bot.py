@@ -161,7 +161,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = [
         [InlineKeyboardButton("🤖 ذكاء", callback_data="ai"), InlineKeyboardButton("😂 نكتة", callback_data="joke")],
-        [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InlineKeyboardButton("💡 نصيحة", callback_data="tip")],
+        [InlineKeyboardButton("🕌 ديني", callback_data="religious"), InInlineKeyboardButton("💡 نصيحة", callback_data="tip")],
         [InlineKeyboardButton("❤️ حب", callback_data="love"), InlineKeyboardButton("📱 تليجرام", callback_data="telegram")],
         [InlineKeyboardButton("📩 المطور", callback_data="contact_dev")],
     ]
@@ -173,14 +173,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        f"🔥 **بوت التواصل الذكي**\n\n"
-        f"✧ المالك: @u_t_r ✧\n"
-        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-        f"🤖 ذكاء • 😂 نكتة\n"
-        f"🕌 ديني • 💡 نصيحة\n"
-        f"❤️ حب • 📱 تليجرام\n"
+        f"👑 **بوت التواصل الذكي** 👑\n\n"
+        f"✧ مطوري: @u_t_r ✧\n\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+        f"🤖 ذكاء  •  😂 نكتة\n"
+        f"🕌 ديني  •  💡 نصيحة\n"
+        f"❤️ حب  •  📱 تليجرام\n"
         f"📩 تواصل مع المطور\n"
-        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
         f"✨ أرسل وسأرد بذكاء",
         reply_markup=reply_markup,
         parse_mode="Markdown"
@@ -355,14 +355,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await query.edit_message_text(
-            f"🔥 **بوت التواصل الذكي**\n\n"
-            f"✧ المالك: @u_t_r ✧\n"
-            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-            f"🤖 ذكاء • 😂 نكتة\n"
-            f"🕌 ديني • 💡 نصيحة\n"
-            f"❤️ حب • 📱 تليجرام\n"
+            f"👑 **بوت التواصل الذكي** 👑\n\n"
+            f"✧ مطوري: @u_t_r ✧\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            f"🤖 ذكاء  •  😂 نكتة\n"
+            f"🕌 ديني  •  💡 نصيحة\n"
+            f"❤️ حب  •  📱 تليجرام\n"
             f"📩 تواصل مع المطور\n"
-            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
             f"✨ أرسل وسأرد بذكاء",
             reply_markup=reply_markup,
             parse_mode="Markdown"
