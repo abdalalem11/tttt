@@ -20,6 +20,16 @@ DEVELOPER_ID = 1170411845
 DATA_FILE = "bot_data.json"
 REPLIES_FILE = "replies_data.json"
 
+# ========== قوائم الردود السريعة ==========
+QUICK_REPLIES = [
+    ["👋 مرحباً! كيف يمكنني مساعدتك؟", "شكراً لتواصلك"],
+    ["✅ تم استلام رسالتك، سأرد قريباً", "🙏 شكراً لك"],
+    ["📌 أنا مشغول حالياً، سأرد لاحقاً", "⏳ انتظر قليلاً"],
+    ["❌ عذراً، لا أستطيع مساعدتك في هذا", "🔍 وضح أكثر"],
+    ["👍 تم، سأعمل على طلبك", "📋 جاري التنفيذ"],
+    ["📞 تواصل معي الآن", "📨 أرسل تفاصيل أكثر"],
+]
+
 # ========== تحميل/حفظ البيانات ==========
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -217,6 +227,7 @@ async def panel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="admin_ban")],
         [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
         [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
+        [InlineKeyboardButton("📩 جميع الرسائل", callback_data="show_all_messages")],
         [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -261,6 +272,100 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_name = query.from_user.first_name
         username = query.from_user.username
         
+        # ========== أزرار الردود السريعة ==========
+        if data_callback.startswith("quick_reply_"):
+            parts = data_callback.split('_')
+            reply_index = int(parts[2])
+            target_user_id = int(parts[3])
+            
+            reply_text = QUICK_REPLIES[reply_index][0]
+            
+            # إرسال الرد للمستخدم
+            try:
+                await context.bot.send_message(
+                    chat_id=target_user_id,
+                    text=f"📩 **رد من المطور @SSSTlF**\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"{reply_text}\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"✧ للرد على المطور: أرسل رسالتك هنا ✧",
+                    parse_mode="Markdown"
+                )
+                
+                # تأكيد للمطور
+                await query.edit_message_text(
+                    f"✅ **تم إرسال الرد السريع بنجاح!**\n\n"
+                    f"👤 المستخدم: `{target_user_id}`\n"
+                    f"📝 الرد: {reply_text}",
+                    parse_mode="Markdown"
+                )
+            except Exception as e:
+                await query.edit_message_text(
+                    f"❌ **خطأ:** لم يتمكن البوت من إرسال الرد.\n"
+                    f"تأكد من أن المستخدم بدأ البوت أولاً.",
+                    parse_mode="Markdown"
+                )
+                logging.error(f"Error sending quick reply: {e}")
+            return
+        
+        # ========== أزرار الرد المخصص ==========
+        elif data_callback.startswith("custom_reply_"):
+            target_user_id = int(data_callback.split('_')[2])
+            
+            # حفظ في السياق بأن المطور يريد الرد على هذا المستخدم
+            context.user_data['replying_to'] = target_user_id
+            context.user_data['waiting_for'] = 'custom_reply'
+            
+            await query.edit_message_text(
+                f"✏️ **أرسل ردك المخصص الآن**\n\n"
+                f"👤 المستخدم: `{target_user_id}`\n\n"
+                f"📝 اكتب رسالتك وسأرسلها فوراً.\n\n"
+                f"لإلغاء: /cancel",
+                parse_mode="Markdown"
+            )
+            return
+        
+        # ========== عرض جميع الرسائل ==========
+        elif data_callback == "show_all_messages":
+            if user_id != DEVELOPER_ID:
+                return
+            
+            replies = load_replies()
+            
+            if not replies:
+                await query.edit_message_text(
+                    "📭 **لا توجد رسائل حالياً.**",
+                    parse_mode="Markdown"
+                )
+                return
+            
+            # عرض آخر 10 رسائل
+            message_list = []
+            for uid, msg_data in list(replies.items())[-10:]:
+                message_list.append(
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"👤 {msg_data['name']}\n"
+                    f"🆔 `{uid}`\n"
+                    f"📝 {msg_data['message'][:50]}...\n"
+                    f"⏰ {msg_data['time']}"
+                )
+            
+            messages_text = "\n".join(message_list)
+            
+            keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                f"📋 **آخر الرسائل ({len(replies)} رسالة)**\n\n"
+                f"{messages_text}\n\n"
+                f"━━━━━━━━━━━━━━━━━━━\n"
+                f"💡 للرد: استخدم زر الرد السريع",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+            return
+        
+        # ========== الأزرار العادية ==========
         if data_callback == "ai":
             await query.edit_message_text(
                 "🤖 **مرحباً! أنا الذكاء الاصطناعي هنا.**\n\n"
@@ -391,7 +496,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="admin_ban")],
                 [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
                 [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
-                [InlineKeyboardButton("📩 رد على رسالة", callback_data="admin_reply")],
+                [InlineKeyboardButton("📩 جميع الرسائل", callback_data="show_all_messages")],
                 [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -511,6 +616,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # التحقق من إلغاء الأمر
         if user_message and user_message.lower() == "/cancel":
             context.user_data['waiting_for'] = None
+            context.user_data['replying_to'] = None
             await update.message.reply_text(
                 "❌ **تم إلغاء العملية.**",
                 parse_mode="Markdown"
@@ -534,6 +640,50 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "⏸️ **البوت معطل حالياً.** يرجى المحاولة لاحقاً.",
                 parse_mode="Markdown"
             )
+            return
+        
+        # ========== معالج الرد المخصص من المطور ==========
+        if user_id == DEVELOPER_ID and context.user_data.get('waiting_for') == 'custom_reply':
+            target_user_id = context.user_data.get('replying_to')
+            reply_text = user_message
+            
+            if not target_user_id:
+                await update.message.reply_text(
+                    "❌ حدث خطأ: لا يوجد مستهدف للرد.",
+                    parse_mode="Markdown"
+                )
+                context.user_data['waiting_for'] = None
+                return
+            
+            # إرسال الرد للمستخدم
+            try:
+                await context.bot.send_message(
+                    chat_id=target_user_id,
+                    text=f"📩 **رد من المطور @SSSTlF**\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"{reply_text}\n\n"
+                         f"━━━━━━━━━━━━━━━━━━━\n"
+                         f"✧ للرد على المطور: أرسل رسالتك هنا ✧",
+                    parse_mode="Markdown"
+                )
+                
+                await update.message.reply_text(
+                    f"✅ **تم إرسال الرد المخصص بنجاح!**\n\n"
+                    f"👤 المستخدم: `{target_user_id}`\n"
+                    f"📝 الرد:\n{reply_text}",
+                    parse_mode="Markdown"
+                )
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ **خطأ:** لم يتمكن البوت من إرسال الرد.\n"
+                    f"تأكد من أن المستخدم بدأ البوت أولاً.",
+                    parse_mode="Markdown"
+                )
+                logging.error(f"Error sending custom reply: {e}")
+            
+            # مسح البيانات
+            context.user_data['waiting_for'] = None
+            context.user_data['replying_to'] = None
             return
         
         # ========== أوامر المطور ==========
@@ -588,7 +738,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             elif context.user_data.get('waiting_for') == 'reply_to_user':
                 try:
-                    # تقسيم الرسالة: ايدي|الرسالة
                     parts = user_message.split('|', 1)
                     if len(parts) != 2:
                         await update.message.reply_text(
@@ -609,7 +758,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         )
                         return
                     
-                    # إرسال الرد للمستخدم
                     await context.bot.send_message(
                         chat_id=target_id,
                         text=f"📩 **رسالة من المطور**\n\n"
@@ -652,11 +800,33 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "name": user_name,
                     "username": username,
                     "message": user_message,
-                    "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "user_id": user_id
                 }
                 save_replies(replies)
                 
-                # إرسال للمطور مع جميع المعلومات
+                # إنشاء أزرار ردود سريعة للمطور
+                quick_buttons = []
+                for i, reply in enumerate(QUICK_REPLIES):
+                    quick_buttons.append([
+                        InlineKeyboardButton(
+                            f"{reply[0][:20]}...", 
+                            callback_data=f"quick_reply_{i}_{user_id}"
+                        )
+                    ])
+                
+                # أزرار إضافية
+                quick_buttons.append([
+                    InlineKeyboardButton("✏️ رد مخصص", callback_data=f"custom_reply_{user_id}"),
+                    InlineKeyboardButton("📋 عرض جميع الرسائل", callback_data="show_all_messages")
+                ])
+                quick_buttons.append([
+                    InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")
+                ])
+                
+                reply_markup = InlineKeyboardMarkup(quick_buttons)
+                
+                # إرسال للمطور مع الأزرار
                 await context.bot.send_message(
                     chat_id=DEVELOPER_ID,
                     text=f"📩 **رسالة جديدة من مستخدم**\n\n"
@@ -669,8 +839,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                          f"{user_message}\n\n"
                          f"━━━━━━━━━━━━━━━━━━━\n"
                          f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                         f"💡 **للرد:** استخدم أمر الرد في لوحة التحكم\n"
-                         f"📌 أو أرسل: `{user_id}|رسالتك`",
+                         f"💡 اختر رداً سريعاً أو اكتب رداً مخصصاً:",
+                    reply_markup=reply_markup,
                     parse_mode="Markdown"
                 )
                 
@@ -684,8 +854,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"━━━━━━━━━━━━━━━━━━━\n\n"
                     f"📝 **رسالتك:**\n{user_message}\n\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
-                    f"شكراً لتواصلك مع @SSSTlF 🙏\n"
-                    f"سيتم الرد عليك قريباً.",
+                    f"📨 سيتم الرد عليك قريباً من المطور @SSSTlF",
                     parse_mode="Markdown"
                 )
                 
@@ -730,6 +899,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             except:
                 pass
         
+        # ========== ردود الذكاء الاصطناعي ==========
         ai_reply = get_ai_response(user_message)
         await update.message.reply_text(ai_reply, parse_mode="Markdown")
     except Exception as e:
@@ -767,7 +937,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             f"📝 {caption}\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
                             f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                            f"💡 للرد: `{user_id}|رسالتك`"
+                            f"💡 للرد: استخدم /panel ثم اختر الرد المناسب"
                 )
                 
                 if os.path.exists(file_path):
@@ -829,7 +999,7 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             f"📝 {caption}\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
                             f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                            f"💡 للرد: `{user_id}|رسالتك`"
+                            f"💡 للرد: استخدم /panel ثم اختر الرد المناسب"
                 )
                 
                 if os.path.exists(file_path):
@@ -891,7 +1061,7 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             f"📝 {caption}\n\n"
                             f"━━━━━━━━━━━━━━━━━━━\n"
                             f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                            f"💡 للرد: `{user_id}|رسالتك`"
+                            f"💡 للرد: استخدم /panel ثم اختر الرد المناسب"
                 )
                 
                 if os.path.exists(file_path):
@@ -946,6 +1116,7 @@ async def dev_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['waiting_for'] = None
+    context.user_data['replying_to'] = None
     await update.message.reply_text(
         "❌ **تم إلغاء العملية.**",
         parse_mode="Markdown"
